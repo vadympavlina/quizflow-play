@@ -110,7 +110,7 @@
   .ans.d{background:linear-gradient(135deg,#3B82F6,#1D4ED8)}
   .ans.e{background:linear-gradient(135deg,#A78BFA,#6D28D9)}
   .ans.f{background:linear-gradient(135deg,#EC4899,#BE185D)}
-  .ans.picked{outline:4px solid #FDE047;outline-offset:3px}
+  .ans.picked{box-shadow:0 8px 22px rgba(0,0,0,.18), inset 0 0 0 4px #FDE047}
   .ans.picked .check{background:#FDE047;border-color:#FDE047;color:#713F12}
   .ans.locked:not(.picked){filter:saturate(.4) opacity(.45)}
   .ans:disabled{cursor:default}
@@ -187,6 +187,7 @@
   .conn.show{display:block}
 
   button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #FDE047;outline-offset:3px}
+  .ans:focus-visible{outline-offset:-7px}
   @media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important} }
   @media (max-width: 640px){
     .answers{grid-template-columns:1fr !important;gap:10px;margin-top:20px}
