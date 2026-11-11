@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=5">
+<link rel="modulepreload" href="live-core.js?v=6">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -68,14 +68,15 @@
   .timer.done{--tc:#64748B}
   @keyframes pulse{50%{transform:scale(1.1)}}
 
-  .question-wrap{flex:1;display:flex;flex-direction:column;padding:0 20px 24px;max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:2}
-  .question-meta{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(196,181,253,.85);margin:10px 0 14px}
-  .question-meta .sep{width:3px;height:3px;border-radius:50%;background:rgba(196,181,253,.5)}
-  .type-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:none;border:1px solid}
-  .type-badge.single{background:rgba(167,139,250,.18);border-color:rgba(167,139,250,.4);color:#DDD6FE}
-  .type-badge.multi{background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.4);color:#A7F3D0}
-  .type-badge.text{background:rgba(251,191,36,.13);border-color:rgba(251,191,36,.35);color:#FDE68A}
-  .type-badge.number{background:rgba(96,165,250,.15);border-color:rgba(96,165,250,.35);color:#BFDBFE}
+  .question-wrap{flex:1;display:flex;flex-direction:column;padding:0 20px 96px;max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:2}
+  .question-meta{display:flex;flex-direction:column;align-items:center;gap:8px;margin:10px 0 16px}
+  .question-meta .tm{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(196,181,253,.85)}
+  .tchip{display:inline-flex;align-items:center;gap:10px;padding:10px 18px 10px 13px;border-radius:999px;font-size:15.5px;font-weight:800;letter-spacing:-.005em;text-align:left;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+  .tchip svg{width:21px;height:21px;flex:0 0 auto}
+  .tchip.single{background:#EDE9FE;color:#4C1D95}
+  .tchip.multi{background:#D1FAE5;color:#065F46}
+  .tchip.text{background:#FEF3C7;color:#78350F}
+  .tchip.number{background:#DBEAFE;color:#1E3A8A}
   /* Розмір шрифту питання й варіантів підбирає fitText() під довжину тексту */
   .question-text{text-align:center;font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.22;margin:0 auto;max-width:880px;text-shadow:0 2px 12px rgba(0,0,0,.25);overflow-wrap:break-word;hyphens:auto}
   .question-text.small{font-weight:700;letter-spacing:-.01em;line-height:1.3;text-align:left}
@@ -109,19 +110,19 @@
   .ans.d{background:linear-gradient(135deg,#3B82F6,#1D4ED8)}
   .ans.e{background:linear-gradient(135deg,#A78BFA,#6D28D9)}
   .ans.f{background:linear-gradient(135deg,#EC4899,#BE185D)}
-  .ans.picked{outline:4px solid #FDE047;outline-offset:3px}
+  .ans.picked{box-shadow:0 8px 22px rgba(0,0,0,.18), inset 0 0 0 4px #FDE047}
   .ans.picked .check{background:#FDE047;border-color:#FDE047;color:#713F12}
   .ans.locked:not(.picked){filter:saturate(.4) opacity(.45)}
   .ans:disabled{cursor:default}
-  .ans.correct-ans{outline:4px solid #86EFAC;outline-offset:3px;filter:none;opacity:1}
-  .ans.correct-ans .check{background:#86EFAC;border-color:#86EFAC;color:#064E3B}
-  .ans.missed{outline-style:dashed !important}
-  .ans.missed .check{background:transparent !important;border-color:#86EFAC !important;color:#86EFAC !important}
-  .ans .tag{position:absolute;top:-9px;right:14px;background:#86EFAC;color:#064E3B;font-size:10.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:6px}
-  .ans.my-wrong{outline:4px solid #F87171;outline-offset:3px;filter:saturate(.6) opacity(.8)}
-  .ans.my-wrong .check{background:#F87171;border-color:#F87171;color:#fff}
+  .ans.correct-ans{filter:none;opacity:1;box-shadow:0 8px 22px rgba(0,0,0,.2), inset 0 0 0 3.5px rgba(255,255,255,.95)}
+  .ans.correct-ans .check{background:#fff;border-color:#fff;color:#059669}
+  .ans.correct-ans.missed{outline:3px dashed rgba(255,255,255,.9);outline-offset:-8px;box-shadow:0 8px 22px rgba(0,0,0,.2)}
+  .ans.correct-ans.missed .check{background:transparent;border-color:#fff;color:#fff}
+  .ans.my-wrong{filter:saturate(.7) opacity(.85);box-shadow:0 8px 22px rgba(0,0,0,.2), inset 0 0 0 3.5px rgba(254,202,202,.95)}
+  .ans.my-wrong .check{background:#EF4444;border-color:#fff;color:#fff}
   .ans.wrong-ans{filter:saturate(.3) opacity(.3)}
   .ans.single-only .check{display:none}
+  .ans.single-only.correct-ans .check,.ans.single-only.my-wrong .check{display:grid}
 
   .text-answer-wrap{margin:26px auto 0;max-width:640px;width:100%}
   .text-input{width:100%;padding:17px 20px;border-radius:16px;border:2px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);font:700 20px Manrope,sans-serif;color:#fff;outline:none;transition:border-color .15s}
@@ -161,7 +162,8 @@
   .feedback .place{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.14);font-size:14.5px;font-weight:700;color:#E0E7FF}
   .feedback .place b{color:#FDE68A;font-family:"Geist Mono",monospace}
   .feedback .place span{display:block;margin-top:3px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.65)}
-  .feedback .ref{font-family:"Geist Mono",monospace;font-size:20px;font-weight:800;margin-top:4px;overflow-wrap:anywhere}
+  .feedback .vchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+  .feedback .vchip{padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.16);font-size:17px;font-weight:800;overflow-wrap:anywhere}
 
   /* Оверлеї */
   .overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px}
@@ -185,6 +187,7 @@
   .conn.show{display:block}
 
   button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #FDE047;outline-offset:3px}
+  .ans:focus-visible{outline-offset:-7px}
   @media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important} }
   @media (max-width: 640px){
     .answers{grid-template-columns:1fr !important;gap:10px;margin-top:20px}
@@ -245,8 +248,8 @@
 
 <main class="question-wrap">
   <div class="question-meta">
-    <span id="q-meta-time">— с</span><span class="sep"></span>
-    <span class="type-badge single" id="q-type-badge">Одна правильна</span>
+    <span id="q-type-wrap"></span>
+    <span class="tm" id="q-meta-time">— с</span>
   </div>
   <div class="question-text qf-rich" id="q-text"></div>
 
@@ -273,8 +276,8 @@ import {
   db, ref, get, set, onValue, serverTimestamp, readParams, isValidCode, esc, initialsOf, avatarColor,
   applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, TYPE_LABELS, isFreeform,
   seededOrder, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
-  richHtml, toast, plural,
-} from "./live-core.js?v=5";
+  richHtml, toast, plural, typeChip, textAnswers,
+} from "./live-core.js?v=6";
 
 const $ = (id) => document.getElementById(id);
 let timerId = null, wasOpen = false;
@@ -350,9 +353,7 @@ function renderQuestion(qi) {
   $("q-bar").style.width = `${((qi + 1) / totalQ) * 100}%`;
   $("q-text").innerHTML = richHtml(qq.text);
   $("q-meta-time").innerHTML = `${EIC.clock.replace(/width="24" height="24"/, 'width="13" height="13" style="vertical-align:-2px;margin-right:4px"')}${timePerQ} с на відповідь`;
-  const t = TYPE_LABELS[qq.type] || TYPE_LABELS.single;
-  $("q-type-badge").className = "type-badge " + t.cls;
-  $("q-type-badge").textContent = t.label;
+  $("q-type-wrap").innerHTML = typeChip(qq.type);
 
   const free = isFreeform(qq);
   $("answers-grid").hidden = free;
@@ -418,8 +419,7 @@ function paint() {
       b.classList.toggle("correct-ans", !!correct && correct.has(i));
       b.classList.toggle("missed", missed);
       b.querySelector(".check").classList.toggle("x", !!correct && !correct.has(i) && picked.has(i));
-      b.querySelector(".tag")?.remove();
-      if (missed) b.insertAdjacentHTML("beforeend", `<span class="tag">пропущено</span>`);
+      b.title = missed ? "Правильний варіант, який ви пропустили" : "";
       b.classList.toggle("my-wrong", !!correct && !correct.has(i) && picked.has(i) && !!myAnswer);
       b.classList.toggle("wrong-ans", !!correct && !correct.has(i) && !(picked.has(i) && myAnswer));
     });
@@ -447,7 +447,8 @@ function renderFeedback(qq) {
   const fb = $("feedback");
   const graded = myAnswer && typeof myAnswer.isCorrect === "boolean";
   const ref_ = revealInfo()?.correct;
-  const refLine = isFreeform(qq) && ref_ != null && ref_ !== "" ? `<div class="sub">Правильна відповідь:</div><div class="ref">${esc(ref_)}</div>` : "";
+  const vars = isFreeform(qq) ? textAnswers(ref_, qq.type) : [];
+  const refLine = vars.length ? `<div class="sub">${vars.length > 1 ? "Правильні відповіді" : "Правильна відповідь"}:</div><div class="vchips">${vars.map(v => `<span class="vchip">${esc(v)}</span>`).join("")}</div>` : "";
   let cls, html;
   if (!myAnswer) {
     cls = "none"; html = `<div class="big">Без відповіді</div>${refLine}`;
