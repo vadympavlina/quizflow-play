@@ -153,17 +153,18 @@
   .feedback{display:none;margin:22px auto 0;max-width:560px;width:100%;padding:16px 20px;border-radius:18px;text-align:center;animation:fbIn .45s cubic-bezier(.34,1.56,.64,1)}
   .feedback.show{display:block}
   @keyframes fbIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
-  .feedback.ok{background:rgba(16,185,129,.2);border:1.5px solid rgba(52,211,153,.55)}
-  .feedback.bad{background:rgba(239,68,68,.16);border:1.5px solid rgba(248,113,113,.45)}
-  .feedback.none{background:rgba(100,116,139,.2);border:1.5px solid rgba(148,163,184,.4)}
-  .feedback .big{font-size:24px;font-weight:900}
-  .feedback .pts{font-family:"Geist Mono",monospace;font-size:20px;font-weight:800;color:#FDE68A;margin-top:4px}
-  .feedback .sub{font-size:13px;color:rgba(255,255,255,.7);margin-top:6px}
-  .feedback .place{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.14);font-size:14.5px;font-weight:700;color:#E0E7FF}
-  .feedback .place b{color:#FDE68A;font-family:"Geist Mono",monospace}
-  .feedback .place span{display:block;margin-top:3px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.65)}
+  .feedback{box-shadow:0 14px 34px rgba(0,0,0,.35)}
+  .feedback.ok{background:linear-gradient(160deg,#059669,#047857);border:2px solid #6EE7B7}
+  .feedback.bad{background:linear-gradient(160deg,#DC2626,#B91C1C);border:2px solid #FCA5A5}
+  .feedback.none{background:linear-gradient(160deg,#475569,#334155);border:2px solid #CBD5E1}
+  .feedback .big{font-size:26px;font-weight:900;color:#fff}
+  .feedback .pts{font-family:"Geist Mono",monospace;font-size:22px;font-weight:800;color:#FEF08A;margin-top:4px}
+  .feedback .sub{font-size:14px;font-weight:600;color:rgba(255,255,255,.92);margin-top:6px}
+  .feedback .place{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.3);font-size:15px;font-weight:700;color:#fff}
+  .feedback .place b{color:#FEF08A;font-family:"Geist Mono",monospace}
+  .feedback .place span{display:block;margin-top:3px;font-size:13px;font-weight:600;color:rgba(255,255,255,.9)}
   .feedback .vchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
-  .feedback .vchip{padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.16);font-size:17px;font-weight:800;overflow-wrap:anywhere}
+  .feedback .vchip{padding:6px 14px;border-radius:999px;background:#fff;color:#111827;font-size:17px;font-weight:800;overflow-wrap:anywhere}
 
   /* Оверлеї */
   .overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:24px}
