@@ -4,7 +4,7 @@ import { test, expect } from "./fixtures.mjs";
 test("текстова відповідь: зараховується кожен з варіантів через / | , або", async ({ page, errors }) => {
   await page.goto("/404.html");
   const res = await page.evaluate(async () => {
-    const { checkCorrect } = await import("/live/live-core.js?v=5");
+    const { checkCorrect } = await import("/live/live-core.js?v=6");
     const q = { type: "text" };
     const ok = (correct, v) => checkCorrect(q, correct, v);
     return {
@@ -19,5 +19,26 @@ test("текстова відповідь: зараховується кожен
     };
   });
   expect(res).toEqual({ whole: true, slash1: true, slash2: true, pipe: true, comma: true, or: true, wrong: false, empty: false });
+  expect(errors).toEqual([]);
+});
+
+test("показ відповідей: варіанти тексту розбиваються, число з комою — ні; ярлик типу питання виразний", async ({ page, errors }) => {
+  await page.goto("/404.html");
+  const res = await page.evaluate(async () => {
+    const { textAnswers, typeChip } = await import("/live/live-core.js?v=6");
+    return {
+      text: textAnswers("Київ / м. Київ", "text"),
+      num: textAnswers("3,5", "number"),
+      empty: textAnswers("", "text"),
+      multi: typeChip("multi"), single: typeChip("single"), txt: typeChip("text"), num2: typeChip("number"),
+    };
+  });
+  expect(res.text).toEqual(["Київ", "м. Київ"]);
+  expect(res.num).toEqual(["3,5"]);
+  expect(res.empty).toEqual([]);
+  expect(res.single).toContain("Одна правильна відповідь");
+  expect(res.multi).toContain("Кілька правильних відповідей");
+  expect(res.txt).toContain("Впишіть відповідь");
+  expect(res.num2).toContain("Введіть число");
   expect(errors).toEqual([]);
 });
