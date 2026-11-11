@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "e2e": "playwright test",
+    "avatars": "node scripts/avatars.mjs",
     "icons:mascot": "node scripts/icons-mascot.mjs"
   },
   "devDependencies": {
