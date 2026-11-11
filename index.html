@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live/live-core.js?v=7">
+<link rel="modulepreload" href="live/live-core.js?v=8">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -57,6 +57,7 @@
 
   .nick-row{display:flex;gap:12px;align-items:center}
   .av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;pointer-events:none;-webkit-user-drag:none}
+  .av svg{width:100%;height:100%;display:block;border-radius:inherit;pointer-events:none}
   .nick-row .av{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:17px;flex:0 0 auto;background:var(--line-2);transition:background .2s;overflow:hidden}
   .pick-head{display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 8px}
   .pick-head b{font-size:13px;color:var(--ink-2);font-weight:700}
@@ -67,6 +68,14 @@
   .hero-btn:hover{transform:translateY(-2px)}
   .hero-btn[aria-checked=true]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,79,232,.28);transform:scale(1.04)}
   .hero-btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .hero-btn svg{width:100%;height:100%;display:block;pointer-events:none}
+  .acc-row{display:flex;gap:8px;overflow-x:auto;padding:4px;margin:0 -4px;scrollbar-width:none;overscroll-behavior-x:contain}
+  .acc-row::-webkit-scrollbar{display:none}
+  .acc-btn{appearance:none;flex:0 0 auto;width:60px;height:60px;border:2px solid transparent;border-radius:16px;padding:0;background:var(--card-2);cursor:pointer;overflow:hidden;display:grid;place-items:center;font-weight:700;font-size:11px;color:var(--ink-3);transition:transform .15s,border-color .15s,box-shadow .15s}
+  .acc-btn svg,.acc-btn img{width:100%;height:100%;display:block;pointer-events:none}
+  .acc-btn:hover{transform:translateY(-2px)}
+  .acc-btn[aria-checked=true]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,79,232,.28)}
+  .acc-btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
   .counter{text-align:right;font:500 11.5px var(--mono);color:var(--ink-3);margin-top:6px}
 
@@ -114,6 +123,10 @@
     <div class="counter" id="nick-count">0 / 24</div>
     <div class="pick-head"><b id="hero-lbl">Оберіть героя</b><span id="hero-name"></span></div>
     <div class="heroes" id="heroes" role="radiogroup" aria-labelledby="hero-lbl"></div>
+    <div class="pick-head"><b id="hat-lbl">Головний убір</b><span id="hat-name"></span></div>
+    <div class="acc-row" id="hats" role="radiogroup" aria-labelledby="hat-lbl"></div>
+    <div class="pick-head"><b id="gl-lbl">Окуляри</b><span id="gl-name"></span></div>
+    <div class="acc-row" id="glasses" role="radiogroup" aria-labelledby="gl-lbl"></div>
     <div class="info" id="info-running" hidden>Гра вже йде — ви приєднаєтесь з поточного питання</div>
     <div class="err" id="err-nick" hidden></div>
     <div class="actions"><button class="lv-btn primary big block" id="btn-join" type="submit">Приєднатись</button></div>
@@ -123,7 +136,7 @@
 </div>
 
 <script type="module">
-import { db, ref, get, set, serverTimestamp, esc, initialsOf, avatarColor, isValidCode, safeStore, plural, AVATARS, avatarFill, avatarInner, avatarInfo, randomAvatar } from "./live/live-core.js?v=7";
+import { db, ref, get, set, serverTimestamp, esc, initialsOf, avatarColor, isValidCode, safeStore, plural, AVATARS, HATS, GLASSES, avatarFill, avatarInner, avatarInfo, randomAvatar } from "./live/live-core.js?v=8";
 
 const $ = (id) => document.getElementById(id);
 const urlCode = (new URLSearchParams(location.search).get("code") || "").replace(/\D/g, "");
@@ -177,17 +190,31 @@ async function checkCode(c) {
 // ─── Крок 2: нік ───────────────────────────────────────────────────────
 const nickInp = $("inp-nick");
 const normNick = (s) => s.replace(/\s+/g, " ").trim();
-let hero = "";   // обраний герой: діє лише в цій грі, на пристрої не запам'ятовується
+let hero = "", hat = "", gls = "";   // обране: діє лише в цій грі, на пристрої не запам'ятовується
 function paintAvatar() {
   const n = normNick(nickInp.value);
-  $("nick-av").innerHTML = hero ? avatarInner(n, hero) : (n ? initialsOf(n) : "?");
+  $("nick-av").innerHTML = hero ? avatarInner(n, hero, { hat, glasses: gls }) : (n ? initialsOf(n) : "?");
   $("nick-av").style.background = hero ? avatarFill(n, hero) : (n ? avatarColor(n) : "");
   $("nick-count").textContent = `${nickInp.value.length} / 24`;
   nickInp.classList.remove("bad"); show($("err-nick"), "");
 }
 nickInp.addEventListener("input", paintAvatar);
+const accBtn = (kind, id, name, inner) => `<button type="button" class="acc-btn" role="radio" aria-checked="false" data-kind="${kind}" data-id="${id}" aria-label="${name}" title="${name}">${inner}</button>`;
+function renderAcc() {
+  // Мініатюри убрів і окулярів — на поточному герої
+  $("hats").innerHTML = accBtn("hat", "", "Без убору", "без") + HATS.map(h => accBtn("hat", h.id, h.name, avatarInner("", hero, { hat: h.id }))).join("");
+  $("glasses").innerHTML = accBtn("gl", "", "Без окулярів", "без") + GLASSES.map(g => accBtn("gl", g.id, g.name, avatarInner("", hero, { glasses: g.id }))).join("");
+  document.querySelectorAll(".acc-btn").forEach(b => { const cur = b.dataset.kind === "hat" ? hat : gls; b.setAttribute("aria-checked", b.dataset.id === cur); b.style.background = avatarInfo(hero)?.bg || ""; });
+  $("hat-name").textContent = HATS.find(h => h.id === hat)?.name || "";
+  $("gl-name").textContent = GLASSES.find(g => g.id === gls)?.name || "";
+}
+for (const id of ["hats", "glasses"]) $(id).addEventListener("click", (e) => {
+  const b = e.target.closest(".acc-btn"); if (!b) return;
+  if (b.dataset.kind === "hat") hat = b.dataset.id; else gls = b.dataset.id;
+  renderAcc(); paintAvatar();
+});
 function pickHero(id) {
-  hero = id;
+  hero = id; renderAcc();
   document.querySelectorAll("#heroes .hero-btn").forEach(b => b.setAttribute("aria-checked", b.dataset.id === id));
   $("hero-name").textContent = avatarInfo(id)?.name || "";
   paintAvatar();
@@ -248,7 +275,7 @@ $("step-nick").addEventListener("submit", async (e) => {
       return fail(nickInp, $("err-nick"), "Це ім'я вже зайняте — додайте прізвище або першу літеру.");
     }
     const pid = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-    await set(ref(db, `rooms/${code}/players/${pid}`), { nickname: nick, joinedAt: serverTimestamp(), active: true, online: true, ...(hero ? { avatar: hero } : {}) });
+    await set(ref(db, `rooms/${code}/players/${pid}`), { nickname: nick, joinedAt: serverTimestamp(), active: true, online: true, ...(hero ? { avatar: hero } : {}), ...(hero && hat ? { hat } : {}), ...(hero && gls ? { glasses: gls } : {}) });
     safeStore.set(storeKey(code), { pid });
     safeStore.set("qf-live-nick", nick);
     goPlay(pid, nick);

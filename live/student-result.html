@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=7">
+<link rel="modulepreload" href="live-core.js?v=8">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -59,6 +59,7 @@
   .hero.top .place-badge{background:var(--gold)}
   .player-info{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px}
   .av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;pointer-events:none;-webkit-user-drag:none}
+  .av svg{width:100%;height:100%;display:block;border-radius:inherit;pointer-events:none}
   .player-info .av{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px}
   .player-info .name{font-size:19px;font-weight:700;overflow-wrap:anywhere;text-align:left}
   .place-num{font-family:"Geist Mono",monospace;font-size:76px;font-weight:700;line-height:1;letter-spacing:-.03em;color:var(--accent);margin:6px 0}
@@ -123,7 +124,7 @@ const MIC = {search:"<svg width=\"40\" height=\"40\" viewBox=\"0 0 24 24\" fill=
 import {
   db, ref, get, onValue, readParams, isValidCode, esc, initialsOf, avatarColor, avatarFill, avatarInner, standings,
   plural, fmtNum, pageUrl,
-} from "./live-core.js?v=7";
+} from "./live-core.js?v=8";
 
 const $ = (id) => document.getElementById(id);
 const { code, pid, nickname: nickParam } = readParams("code", "pid", "nickname");
@@ -188,7 +189,7 @@ async function render() {
     <div class="hero${top ? " top" : ""}">
       <div class="place-badge">${badge}</div>
       <div class="player-info">
-        <div class="av" style="background:${avatarFill(nickname, meRow?.avatar)}">${avatarInner(nickname, meRow?.avatar)}</div>
+        <div class="av" style="background:${avatarFill(nickname, meRow?.avatar)}">${avatarInner(nickname, meRow?.avatar, meRow)}</div>
         <div class="name">${esc(nickname)}</div>
       </div>
       <div class="place-num">${place ? "#" + place : "—"}</div>

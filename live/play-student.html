@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=7">
+<link rel="modulepreload" href="live-core.js?v=8">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -56,6 +56,7 @@
   .score.bump{transform:scale(1.18)}
   .player-pill{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:5px 12px 5px 5px;font-size:13px;font-weight:700;max-width:40vw}
   .av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;pointer-events:none;-webkit-user-drag:none}
+  .av svg{width:100%;height:100%;display:block;border-radius:inherit;pointer-events:none}
   .player-pill .av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;flex:0 0 auto}
   .player-pill span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
@@ -279,7 +280,7 @@ import {
   applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, TYPE_LABELS, isFreeform,
   seededOrder, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner,
-} from "./live-core.js?v=7";
+} from "./live-core.js?v=8";
 
 const $ = (id) => document.getElementById(id);
 let timerId = null, wasOpen = false;
@@ -310,7 +311,7 @@ const shuffle = !!oS.val()?.shuffle;
 const nickname = me.nickname || nickParam || "Гравець";
 applyTheme(thS.val(), $("theme-overlay"), $("pattern-overlay"));
 
-for (const id of ["my-av", "lo-av"]) { $(id).innerHTML = avatarInner(nickname, me.avatar); $(id).style.background = avatarFill(nickname, me.avatar); }
+for (const id of ["my-av", "lo-av"]) { $(id).innerHTML = avatarInner(nickname, me.avatar, me); $(id).style.background = avatarFill(nickname, me.avatar); }
 $("my-name").textContent = nickname;
 $("lo-name").textContent = nickname;
 $("lo-title").textContent = ttS.val() ? `«${ttS.val()}»` : "";
