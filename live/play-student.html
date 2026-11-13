@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=8">
+<link rel="modulepreload" href="live-core.js?v=9">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -248,7 +248,7 @@
     <span class="lbl" id="q-lbl">— / —</span>
     <div class="progress-bar"><i id="q-bar"></i></div>
   </div>
-  <span class="score" id="score"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span id="my-score">0</span></span>
+  <span class="score" id="score"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span id="my-score">0</span><span id="score-of" hidden></span></span>
   <div class="player-pill"><span class="av" id="my-av">?</span><span id="my-name">—</span></div>
 </div>
 
@@ -283,9 +283,9 @@ const EIC = {search:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=
 import {
   db, ref, get, set, onValue, serverTimestamp, readParams, isValidCode, esc, initialsOf, avatarColor,
   applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, TYPE_LABELS, isFreeform,
-  seededOrder, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
+  optionOrder, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner,
-} from "./live-core.js?v=8";
+} from "./live-core.js?v=9";
 
 const $ = (id) => document.getElementById(id);
 let timerId = null, wasOpen = false;
@@ -301,8 +301,8 @@ function showEnd(ico, title, text, linkText = "Приєднатись до ін�
 
 // ─── Статичні дані кімнати (без відповідей інших гравців) ──────────────
 const base = `rooms/${code}`;
-const [qS, tS, thS, oS, ttS, meS] = await Promise.all(
-  ["questions", "timePerQ", "theme", "options", "testTitle", `players/${pid}`].map(p => get(ref(db, `${base}/${p}`)))
+const [qS, tS, thS, oS, ttS, meS, scS] = await Promise.all(
+  ["questions", "timePerQ", "theme", "options", "testTitle", `players/${pid}`, "scoring"].map(p => get(ref(db, `${base}/${p}`)))
 );
 const me = meS.val();
 if (!qS.exists() || !me) {
@@ -312,6 +312,8 @@ if (!qS.exists() || !me) {
 const questions = Array.isArray(qS.val()) ? qS.val() : Object.values(qS.val());
 const totalQ = questions.length;
 const timePerQ = Number(tS.val()) || 20;
+// Режим «Точність»: без балів і рейтингу під час гри — лише правильно/неправильно, серія й відсоток класу
+const acc = scS.val() === "correct";
 const shuffle = !!oS.val()?.shuffle;
 const nickname = me.nickname || nickParam || "Гравець";
 applyTheme(thS.val(), $("theme-overlay"), $("pattern-overlay"));
@@ -339,7 +341,8 @@ const timeLeft = () => st.status === "paused" ? Number(st.pausedLeft) || 0
 const canAnswer = () => st.status === "question" && !answered() && timeLeft() > 0;
 
 function renderScore() {
-  const total = Number(myRank?.s) || 0;
+  const total = acc ? (Number(myRank?.k) || Math.round((Number(myRank?.s) || 0) / 1000)) : (Number(myRank?.s) || 0);
+  if (acc) { const ic = $("score").querySelector("svg"); if (ic && !ic.dataset.ok) { ic.dataset.ok = "1"; ic.innerHTML = '<polyline points="20 6 9 17 4 12"/>'; } $("score-of").hidden = false; $("score-of").textContent = ` / ${totalQ}`; $("score").title = "Правильних відповідей"; }
   const el = $("my-score");
   if (el.textContent !== fmtNum(total)) {
     el.textContent = fmtNum(total);
@@ -378,7 +381,7 @@ function renderQuestion(qi) {
     if (matchMedia("(hover:hover)").matches) setTimeout(() => inp.focus(), 50);
   } else {
     const opts = qq.options || [];
-    const order = shuffle ? seededOrder(opts.length, `${pid}:${qi}`) : opts.map((_, i) => i);
+    const order = shuffle ? optionOrder(opts, `${pid}:${qi}`) : opts.map((_, i) => i);
     const multi = qq.type === "multi";
     const longest = Math.max(0, ...opts.map(o => String(o ?? "").length));
     $("answers-grid").style.gridTemplateColumns = opts.length <= 2 && longest > 40 ? "1fr" : "1fr 1fr";
@@ -462,7 +465,7 @@ function renderFeedback(qq) {
   } else if (!graded) {
     cls = "none"; html = `<div class="big">Перевіряємо…</div>${refLine}`;
   } else if (myAnswer.isCorrect) {
-    cls = "ok"; html = `<div class="big"><span class="fb-ico" aria-hidden="true"></span>Правильно!</div><div class="pts">+${fmtNum(myAnswer.points || 0)}</div>${myAnswer.gradedByTeacher ? `<div class="sub">Зараховано викладачем</div>` : ""}${myAnswer.auto ? `<div class="sub">Ви не натиснули «Відповісти» — зараховано введене</div>` : ""}${refLine}`;
+    cls = "ok"; html = `<div class="big"><span class="fb-ico" aria-hidden="true"></span>Правильно!</div>${acc ? "" : `<div class="pts">+${fmtNum(myAnswer.points || 0)}</div>`}${myAnswer.gradedByTeacher ? `<div class="sub">Зараховано викладачем</div>` : ""}${myAnswer.auto ? `<div class="sub">Ви не натиснули «Відповісти» — зараховано введене</div>` : ""}${refLine}`;
   } else {
     let why = "";
     if (qq.type === "multi") {
@@ -473,7 +476,14 @@ function renderFeedback(qq) {
     }
     cls = "bad"; html = `<div class="big"><span class="fb-ico x" aria-hidden="true"></span>Неправильно</div>${why}${myAnswer.auto ? `<div class="sub">Зараховано введене: «${esc(myAnswer.value)}»</div>` : ""}${myAnswer.gradedByTeacher ? `<div class="sub">Перевірено викладачем</div>` : ""}${refLine}`;
   }
-  if (myRank?.r && myRank.n > 1) {
+  if (acc) {
+    // Без місць і балів: серія правильних підряд і скільки відсотків класу відповіли правильно
+    const st = Number(myRank?.st) || 0, pct = revealInfo()?.pct;
+    const bits = [];
+    if (myAnswer?.isCorrect && st >= 2) bits.push(`Серія: <b>${st}</b> ${plural(st, "правильна", "правильні", "правильних")} поспіль`);
+    if (Number.isFinite(Number(pct))) bits.push(`${Math.round(Number(pct))}% класу відповіли правильно`);
+    if (bits.length) html += `<div class="place">${bits.map((b, i) => i ? `<span>${b}</span>` : b).join("")}</div>`;
+  } else if (myRank?.r && myRank.n > 1) {
     const gap = Number(myRank.g) || 0;
     html += `<div class="place">${myRank.r === 1 ? "Ви лідер!" : `Ви на <b>${myRank.r}-му</b> місці з ${myRank.n}`}${myRank.r > 1 && gap > 0 ? `<span>до ${myRank.r - 1}-го місця — ${fmtNum(gap)} ${plural(gap, "бал", "бали", "балів")}</span>` : ""}</div>`;
   }
