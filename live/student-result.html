@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=8">
+<link rel="modulepreload" href="live-core.js?v=9">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -125,7 +125,7 @@ const MIC = {search:"<svg width=\"40\" height=\"40\" viewBox=\"0 0 24 24\" fill=
 import {
   db, ref, get, onValue, readParams, isValidCode, esc, initialsOf, avatarColor, avatarFill, avatarInner, standings,
   plural, fmtNum, pageUrl,
-} from "./live-core.js?v=8";
+} from "./live-core.js?v=9";
 
 const $ = (id) => document.getElementById(id);
 const { code, pid, nickname: nickParam } = readParams("code", "pid", "nickname");
@@ -154,8 +154,9 @@ const unsub = onValue(ref(db, `rooms/${code}/status`), async snap => {
 });
 
 async function render() {
-  const [qS, pS, aS, tS] = await Promise.all(["questions", "players", "answers", "testTitle"].map(p => get(ref(db, `rooms/${code}/${p}`))));
+  const [qS, pS, aS, tS, scS] = await Promise.all(["questions", "players", "answers", "testTitle", "scoring"].map(p => get(ref(db, `rooms/${code}/${p}`))));
   const totalQ = (qS.val() || []).length;
+  const acc = scS.val() === "correct";   // «Точність»: у підсумку кількість правильних, а не бали
   const allAns = aS.val() || {};
   const list = standings(pS.val(), allAns);
   const meRow = list.find(p => p.pid === pid);
@@ -175,14 +176,14 @@ async function render() {
 
   // Топ-5 + рядок з вами, якщо ви нижче
   const top5 = list.slice(0, 5);
-  const row = (p) => `<div class="lr-row${p.pid === pid ? " you" : ""}"><span class="lr-rank">#${p.rank}</span><span class="lr-name">${esc(p.nickname)}</span><span class="lr-pts">${fmtNum(p.score)}</span></div>`;
+  const row = (p) => `<div class="lr-row${p.pid === pid ? " you" : ""}"><span class="lr-rank">#${p.rank}</span><span class="lr-name">${esc(p.nickname)}</span><span class="lr-pts">${acc ? `${p.correct} / ${totalQ}` : fmtNum(p.score)}</span></div>`;
   let lr = top5.map(row).join("");
   if (meRow && !top5.includes(meRow)) lr += `<div class="lr-gap">···</div>` + row(meRow);
 
   const pips = Array.from({ length: totalQ }, (_, i) => {
     const a = mine[i];
     const cls = !a ? "skip" : a.isCorrect ? "ok" : "no";
-    const title = !a ? "без відповіді" : a.isCorrect ? `правильно · +${a.points || 0}` : "помилка";
+    const title = !a ? "без відповіді" : a.isCorrect ? (acc ? "правильно" : `правильно · +${a.points || 0}`) : "помилка";
     return `<div class="pip ${cls}" title="Питання ${i + 1}: ${title}">${i + 1}</div>`;
   }).join("");
 
@@ -201,8 +202,8 @@ async function render() {
         <div><div class="l">Пропущено</div><div class="v dim">${skipped}</div></div>
       </div>
       <div class="total-points">
-        <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-        <div><div class="lbl">Ваші бали</div><div class="pts">${fmtNum(score)}</div></div>
+        <div class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${acc ? '<polyline points="20 6 9 17 4 12"/>' : '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'}</svg></div>
+        <div><div class="lbl">${acc ? "Правильно" : "Ваші бали"}</div><div class="pts">${acc ? `${correct} з ${totalQ}` : fmtNum(score)}</div></div>
         <div class="accuracy"><div class="lbl">Точність</div><div class="pts">${acc}%</div></div>
       </div>
     </div>
