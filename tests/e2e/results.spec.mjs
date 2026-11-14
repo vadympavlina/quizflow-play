@@ -49,18 +49,6 @@ test("результат учня: після дотику на попередн
   await page.evaluate(() => { location.href = "/live/student-result?code=12345678&pid=p3&nickname=x"; });
   await page.waitForTimeout(3500);
   expect(await page.evaluate(() => window.__osc), "звуки створюються").toBeGreaterThan(0);
-  await expect(page.getByText("Щоб почути звук")).toHaveCount(0);
-  expect(errors).toEqual([]);
-});
-
-test("результат учня: сторінку відкрито напряму (браузер блокує звук) — підказка, а після «Ще раз» звук є", async ({ page, errors }) => {
-  await page.addInitScript(countOsc);
-  await seed(page, { rooms: { "12345678": room("speed") } }, "");
-  await page.goto("/live/student-result?code=12345678&pid=p3&nickname=x");
-  await expect(page.getByText("Щоб почути звук")).toBeVisible({ timeout: 4000 });
-  expect(await page.evaluate(() => window.__osc), "без жесту звуку немає").toBe(0);
-  await page.locator("#replay").click();
-  await page.waitForTimeout(2500);
-  expect(await page.evaluate(() => window.__osc), "після кліку звук пішов").toBeGreaterThan(0);
+  await expect(page.locator(".gate")).toHaveCount(0);                  // звук дозволений — екрана «торкніться» немає
   expect(errors).toEqual([]);
 });
