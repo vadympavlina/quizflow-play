@@ -24,3 +24,18 @@ for (const scoring of ["speed", "correct"]) {
     expect(errors).toEqual([]);
   });
 }
+
+test("результат учня: дотик по екрану не переривав анімацію (її не можна скасувати випадково)", async ({ page, errors }) => {
+  await seed(page, { rooms: { "12345678": room("speed") } }, "");
+  await page.goto("/live/student-result?code=12345678&pid=p3&nickname=x");
+  await page.waitForTimeout(400);
+  const running = () => page.evaluate(() => document.getAnimations().filter(a => a.playState === "running").length);
+  expect(await running(), "анімація йде").toBeGreaterThan(0);
+  const vp = page.viewportSize();
+  for (const [fx, fy] of [[.3, .3], [.7, .5], [.5, .8], [.2, .6]]) { await page.mouse.click(vp.width * fx, vp.height * fy); await page.waitForTimeout(60); }
+  expect(await running(), "після кліків анімація досі йде").toBeGreaterThan(0);
+  await page.waitForTimeout(9000);
+  expect(await running(), "сама доходить до кінця").toBe(0);
+  await expect(page.locator(".hero .nm")).toContainText("Дмитро");
+  expect(errors).toEqual([]);
+});
