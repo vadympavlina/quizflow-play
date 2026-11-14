@@ -97,7 +97,7 @@ import {
   db, ref, get, onValue, readParams, isValidCode, esc, standings,
   plural, fmtNum, pageUrl,
 } from "./live-core.js?v=9";
-import { A, SND, NOTE, split, odo, letters, odometer, flash, shake, rings, vib, cancelAll, finishAll, reduced, POP } from "./results-fx.js?v=1";
+import { A, SND, NOTE, split, odo, letters, odometer, flash, shake, rings, vib, cancelAll, reduced, POP } from "./results-fx.js?v=1";
 
 const $ = (id) => document.getElementById(id);
 const { code, pid, nickname: nickParam } = readParams("code", "pid", "nickname");
@@ -233,7 +233,7 @@ async function render() {
       const f = e.querySelector(".f"); if (f) A(f, [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 900, delay: d + 150, easing: "cubic-bezier(.2,.8,.2,1)" });
       if (me) { A(e, [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 700, delay: d + 200, easing: "cubic-bezier(.7,0,.2,1)" }); SND.ping(d + 700, NOTE.E5, .08); }
     });
-    Sx.onclick = e => { if (!e.target.closest(".tools")) finishAll(); };
+    // Дотик чи клік по екрану анімацію НЕ перериває: її легко скасувати випадково, а переглянути ще раз можна кнопкою «Ще раз»
   }
   (document.fonts?.ready || Promise.resolve()).then(() => requestAnimationFrame(run));
 }
