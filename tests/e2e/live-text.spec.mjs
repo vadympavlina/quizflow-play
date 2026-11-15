@@ -4,7 +4,7 @@ import { test, expect } from "./fixtures.mjs";
 test("текстова відповідь: зараховується кожен з варіантів через / | , або", async ({ page, errors }) => {
   await page.goto("/404.html");
   const res = await page.evaluate(async () => {
-    const { checkCorrect } = await import("/live/live-core.js?v=9");
+    const { checkCorrect } = await import("/live/live-core.js?v=10");
     const q = { type: "text" };
     const ok = (correct, v) => checkCorrect(q, correct, v);
     return {
@@ -25,7 +25,7 @@ test("текстова відповідь: зараховується кожен
 test("показ відповідей: варіанти тексту розбиваються, число з комою — ні; ярлик типу питання виразний", async ({ page, errors }) => {
   await page.goto("/404.html");
   const res = await page.evaluate(async () => {
-    const { textAnswers, typeChip } = await import("/live/live-core.js?v=9");
+    const { textAnswers, typeChip } = await import("/live/live-core.js?v=10");
     return {
       text: textAnswers("Київ / м. Київ", "text"),
       num: textAnswers("3,5", "number"),
@@ -59,7 +59,7 @@ test("герої: список без дублікатів, ids допустим
 test("убори й окуляри: файл є, id допустимі, avatarInner складає inline-SVG з унікальними id", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
-    const m = await import("/live/live-core.js?v=9");
+    const m = await import("/live/live-core.js?v=10");
     const one = m.avatarInner("Марія", "fox", { hat: "crown", glasses: "sun" });
     const bare = m.avatarInner("Марія", "fox", {});
     const none = m.avatarInner("Марія К.", "", { hat: "crown" });
@@ -78,7 +78,7 @@ test("убори й окуляри: файл є, id допустимі, avatarIn
 test("текстові й числові відповіді: лапки, крапка, дефіс, описка в довгому слові; числа з пробілами й одиницями", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
-    const { checkCorrect } = await import("/live/live-core.js?v=9");
+    const { checkCorrect } = await import("/live/live-core.js?v=10");
     const t = (c, v, type = "text") => checkCorrect({ type }, c, v);
     return {
       dot: t("Київ", "Київ."), quotes: t("Кобзар", "«Кобзар»"), hyphen: t("Івано-Франківськ", "івано франківськ"),
@@ -95,7 +95,7 @@ test("текстові й числові відповіді: лапки, кра�
 test("перемішування варіантів: «Усе вищеперелічене» й «Жоден» лишаються на місці, решта рівномірно", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
-    const { optionOrder, isPinnedOption } = await import("/live/live-core.js?v=9");
+    const { optionOrder, isPinnedOption } = await import("/live/live-core.js?v=10");
     const opts = ["Дніпро", "Усе вищеперелічене", "Дністер", "Південний Буг", "Жоден із варіантів"];
     let stay = true; const first = {};
     for (let i = 0; i < 3000; i++) { const o = optionOrder(opts, `p${i}:3`); if (o[1] !== 1 || o[4] !== 4 || [...o].sort().join() !== "0,1,2,3,4") stay = false; first[o[0]] = (first[o[0]] || 0) + 1; }
@@ -111,7 +111,7 @@ test("перемішування варіантів: «Усе вищеперел
 test("нічиї: порядок рівних не за алфавітом, серія правильних підряд і k у таблиці місць", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
-    const { standings, rankMap } = await import("/live/live-core.js?v=9");
+    const { standings, rankMap } = await import("/live/live-core.js?v=10");
     const players = { zz: { nickname: "Ярик" }, aa: { nickname: "Аня" }, mm: { nickname: "Марко" } };
     const ans = { 0: { zz: { isCorrect: true, points: 1000 }, aa: { isCorrect: true, points: 1000 }, mm: { isCorrect: false, points: 0 } },
                   1: { zz: { isCorrect: true, points: 1000 }, aa: { isCorrect: true, points: 1000 }, mm: { isCorrect: true, points: 1000 } },
