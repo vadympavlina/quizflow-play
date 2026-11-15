@@ -16,3 +16,12 @@ test("жирне відрізняється від звичайного текс
   expect(r.lightBg).toBe("");             // жовтий і так читається
   expect(errors).toEqual([]);
 });
+
+test("поле відповіді й заблоковані варіанти читаються: без напівпрозорого тла й прозорості тексту", async ({ page, errors }) => {
+  const q = [{ type: "text", text: "Столиця?" }];
+  await seed(page, { rooms: { "12345678": { status: "question", currentQ: 0, questionStartedAt: Date.now(), timePerQ: 60, scoring: "speed", testTitle: "T", questions: q, players: { p1: { nickname: "x", active: true } } } } }, "");
+  await page.goto("/live/play-student?code=12345678&pid=p1&nickname=x"); await page.waitForTimeout(1000);
+  expect(await page.evaluate(() => getComputedStyle(document.getElementById("text-inp")).backgroundColor)).toBe("rgb(255, 255, 255)");
+  expect(await page.evaluate(() => [...document.styleSheets].flatMap(s => [...s.cssRules]).find(r => r.selectorText === ".ans.locked:not(.picked)")?.style.filter || "")).not.toMatch(/opacity/);
+  expect(errors).toEqual([]);
+});
