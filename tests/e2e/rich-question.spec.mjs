@@ -33,3 +33,16 @@ test("верхня панель учня має підкладку, як у ви
   expect(+(bg.match(/[\d.]+/g)[3] ?? 1)).toBeGreaterThan(.3);
   expect(errors).toEqual([]);
 });
+
+test("питання й варіанти учня — по центру екрана, без порожнечі між ними", async ({ page, errors }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seed(page, { rooms: { "12345678": room("Питання?") } }, "");
+  await page.goto("/live/play-student?code=12345678&pid=p1&nickname=x"); await page.waitForTimeout(1000);
+  const g = await page.evaluate(() => {
+    const q = document.getElementById("q-text").getBoundingClientRect(), a = document.getElementById("answers-grid").getBoundingClientRect();
+    return { gap: a.top - q.bottom, above: q.top };
+  });
+  expect(g.gap).toBeLessThan(40);
+  expect(g.above).toBeGreaterThan(200);
+  expect(errors).toEqual([]);
+});
