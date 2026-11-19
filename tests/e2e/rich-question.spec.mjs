@@ -25,3 +25,11 @@ test("поле відповіді й заблоковані варіанти ч�
   expect(await page.evaluate(() => [...document.styleSheets].flatMap(s => [...s.cssRules]).find(r => r.selectorText === ".ans.locked:not(.picked)")?.style.filter || "")).not.toMatch(/opacity/);
   expect(errors).toEqual([]);
 });
+
+test("верхня панель учня має підкладку, як у викладача", async ({ page, errors }) => {
+  await seed(page, { rooms: { "12345678": room("Питання?") } }, "");
+  await page.goto("/live/play-student?code=12345678&pid=p1&nickname=x"); await page.waitForTimeout(800);
+  const bg = await page.evaluate(() => getComputedStyle(document.querySelector(".topbar")).backgroundColor);
+  expect(+(bg.match(/[\d.]+/g)[3] ?? 1)).toBeGreaterThan(.3);
+  expect(errors).toEqual([]);
+});
