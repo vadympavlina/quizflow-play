@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=12">
+<link rel="modulepreload" href="live-core.js?v=13">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -291,9 +291,9 @@ const EIC = {search:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=
 import {
   db, ref, get, set, onValue, serverTimestamp, readParams, isValidCode, esc, initialsOf, avatarColor,
   applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, TYPE_LABELS, isFreeform,
-  optionOrder, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
+  optionOrderFor, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner,
-} from "./live-core.js?v=12";
+} from "./live-core.js?v=13";
 
 const $ = (id) => document.getElementById(id);
 let timerId = null, wasOpen = false;
@@ -338,6 +338,8 @@ let shownQ = -1;
 let myAnswer = null;          // моя відповідь на поточне питання з бази
 let sending = false;
 let multiSel = new Set();
+let shownOrder = [];          // порядок варіантів, як їх бачить цей учень: місце → номер варіанта
+const letterOf = i => { const s = shownOrder.indexOf(i); return OPT_LETTERS[s >= 0 ? s : i]; };
 let unsubMine = null;
 let myRank = null;            // { r: місце, s: бали, g: до попереднього місця, n: гравців } — пише викладач під час розкриття
 
@@ -389,13 +391,15 @@ function renderQuestion(qi) {
     if (matchMedia("(hover:hover)").matches) setTimeout(() => inp.focus(), 50);
   } else {
     const opts = qq.options || [];
-    const order = shuffle ? optionOrder(opts, `${pid}:${qi}`) : opts.map((_, i) => i);
+    const order = shuffle ? optionOrderFor(questions, qi, pid) : opts.map((_, i) => i);
+    shownOrder = order;
     const multi = qq.type === "multi";
     const longest = Math.max(0, ...opts.map(o => String(o ?? "").length));
     $("answers-grid").style.gridTemplateColumns = opts.length <= 2 && longest > 40 ? "1fr" : "1fr 1fr";
-    $("answers-grid").innerHTML = order.map(i =>
-      `<button type="button" class="ans ${OPT_CLASSES[i] || "a"}${multi ? "" : " single-only"}" data-i="${i}" aria-pressed="false">
-        <span class="letter">${OPT_LETTERS[i]}</span>
+    // Колір і буква — за місцем на екрані (перша кнопка завжди А, червона), а не за номером варіанта: вони не «їдуть» разом із перемішаним варіантом
+    $("answers-grid").innerHTML = order.map((i, slot) =>
+      `<button type="button" class="ans ${OPT_CLASSES[slot] || "a"}${multi ? "" : " single-only"}" data-i="${i}" aria-pressed="false">
+        <span class="letter">${OPT_LETTERS[slot]}</span>
         <span class="txt">${esc(opts[i])}</span>
         <span class="check" aria-hidden="true"></span>
       </button>`).join("");
@@ -480,7 +484,7 @@ function renderFeedback(qq) {
       const want = asIndexList(ref_), got = asIndexList(myAnswer.value);
       const hit = got.filter(i => want.includes(i)).length, extra = got.length - hit;
       why = `<div class="sub">${hit < want.length ? `Обрано ${hit} з ${want.length} правильних` : ""}${hit < want.length && extra ? " · " : ""}${extra ? `${extra} ${extra === 1 ? "зайвий варіант" : "зайві варіанти"}` : ""}</div>
-        <div class="sub">Зараховується лише повністю правильна відповідь: ${want.map(i => OPT_LETTERS[i]).join(", ")}</div>`;
+        <div class="sub">Зараховується лише повністю правильна відповідь: ${want.map(letterOf).join(", ")}</div>`;
     }
     cls = "bad"; html = `<div class="big"><span class="fb-ico x" aria-hidden="true"></span>Неправильно</div>${why}${myAnswer.auto ? `<div class="sub">Зараховано введене: «${esc(myAnswer.value)}»</div>` : ""}${myAnswer.gradedByTeacher ? `<div class="sub">Перевірено викладачем</div>` : ""}${refLine}`;
   }
@@ -589,7 +593,7 @@ document.addEventListener("keydown", (e) => {
   if (!btns.length) return;
   let target = null;
   if (/^[1-6]$/.test(e.key)) target = btns[+e.key - 1];                         // за позицією на екрані
-  else { const li = OPT_LETTERS.indexOf(e.key.toUpperCase()); if (li >= 0) target = btns.find(b => +b.dataset.i === li); } // за буквою
+  else { const li = OPT_LETTERS.indexOf(e.key.toUpperCase()); if (li >= 0) target = btns[li]; } // за буквою (як на екрані)
   if (target) { e.preventDefault(); target.click(); }
 });
 
