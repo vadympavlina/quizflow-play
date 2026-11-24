@@ -67,3 +67,13 @@ test.describe("телефон", () => {
     expect(errors).toEqual([]);
   });
 });
+
+test("окремої кнопки немає: вибір відкривається натисканням на самого героя", async ({ page, errors }) => {
+  await seed(page, { rooms: { "12345678": room() } }, "");
+  await page.goto(URL_);
+  await expect(page.getByText("Змінити героя", { exact: true })).toHaveCount(0);      // немає видимого підпису-кнопки
+  await expect(page.locator("#lo-change")).toHaveAttribute("aria-label", "Змінити героя");
+  await page.locator("#lo-av").click();                                                // клік саме по аватару
+  await expect(page.locator(".hp-back.open")).toBeVisible();
+  expect(errors).toEqual([]);
+});
