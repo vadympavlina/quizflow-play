@@ -188,6 +188,8 @@
   #kicked-overlay h2{color:#FCA5A5}
   .me-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:6px 18px 6px 6px;font-weight:800;font-size:17px}
   .me-chip .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:14px}
+  .lo-change{display:inline-flex;align-items:center;gap:8px;margin-top:-6px;padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font:700 14px 'Manrope',system-ui,sans-serif;cursor:pointer;transition:background .15s}
+  .lo-change:hover{background:rgba(255,255,255,.2)}
   .dots{display:flex;gap:8px}
   .dots i{width:10px;height:10px;border-radius:50%;background:#C4B5FD;animation:bounce 1.2s infinite}
   .dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
@@ -224,6 +226,7 @@
 
 <div class="overlay show" id="lobby-overlay">
   <div class="me-chip"><span class="av" id="lo-av">?</span><span id="lo-name">—</span></div>
+  <button type="button" class="lo-change" id="lo-change"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>Змінити героя</button>
   <div>
     <h2>Ви в грі!</h2>
     <p style="margin-top:8px">Дивіться на екран — викладач ось-ось почне</p>
@@ -292,8 +295,9 @@ import {
   db, ref, get, set, onValue, serverTimestamp, readParams, isValidCode, esc, initialsOf, avatarColor,
   applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, TYPE_LABELS, isFreeform,
   optionOrderFor, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
-  richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner,
+  richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner, update,
 } from "./live-core.js?v=13";
+import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=1";
 
 const $ = (id) => document.getElementById(id);
 let timerId = null, wasOpen = false;
@@ -326,7 +330,18 @@ const shuffle = !!oS.val()?.shuffle;
 const nickname = me.nickname || nickParam || "Гравець";
 applyTheme(thS.val(), $("theme-overlay"), $("pattern-overlay"));
 
-for (const id of ["my-av", "lo-av"]) { $(id).innerHTML = avatarInner(nickname, me.avatar, me); $(id).style.background = avatarFill(nickname, me.avatar); }
+const paintMe = () => { for (const id of ["my-av", "lo-av"]) { $(id).innerHTML = avatarInner(nickname, me.avatar, me); $(id).style.background = avatarFill(nickname, me.avatar); } };
+paintMe();
+// Поки гра не запущена, учень може змінити героя й окуляри (правила бази дозволяють це лише в лобі)
+$("lo-change").addEventListener("click", () => openHeroPicker({
+  avatar: me.avatar, glasses: me.glasses,
+  onSave: async (avatar, glasses) => {
+    if (st.status !== "lobby") throw new Error("Гра вже почалась — героя змінити не можна.");
+    try { await update(ref(db, `rooms/${code}/players/${pid}`), { avatar, glasses: glasses || null }); }
+    catch { throw new Error(st.status !== "lobby" ? "Гра вже почалась — героя змінити не можна." : "Не вдалося зберегти. Спробуйте ще раз."); }
+    me.avatar = avatar; me.glasses = glasses || null; paintMe();
+  },
+}));
 $("my-name").textContent = nickname;
 $("lo-name").textContent = nickname;
 $("lo-title").textContent = ttS.val() ? `«${ttS.val()}»` : "";
@@ -623,6 +638,7 @@ function applyState(s) {
 
 
   $("lobby-overlay").classList.toggle("show", s.status === "lobby");
+  if (s.status !== "lobby") closeHeroPicker();   // гра почалась — вибір героя закривається
   $("pause-overlay").classList.toggle("show", s.status === "paused");
   if (s.status === "lobby") return;
 
