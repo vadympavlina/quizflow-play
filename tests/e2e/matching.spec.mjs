@@ -117,3 +117,16 @@ test("ядро: оцінювання лише всіх пар, відбір пи
   expect(r.chip).toContain("Зіставте пари"); expect(r.types).toContain("matching");
   expect(errors).toEqual([]);
 });
+
+test("малий екран, шість пар з довгими відповідями: банк варіантів не ховається під кнопкою підтвердження", async ({ page, errors }) => {
+  await page.setViewportSize({ width: 360, height: 640 });
+  await open(page, { questions: [{ type: "matching", text: "Зіставте історичні події з їхніми датами та коротким описом наслідків",
+    lefts: ["Переяславська рада", "Хрещення Русі", "Битва під Крутами", "Незалежність України", "Чорнобильська катастрофа", "Помаранчева революція"],
+    options: ["1654 рік, союз із Московським царством", "988 рік", "1918 рік", "1991 рік, референдум 1 грудня", "1986 рік", "2004 рік"] }] });
+  for (const t of ["1654", "988", "1918", "1991", "1986", "2004"]) await chip(page, t).click();
+  await expect(page.locator("#confirm-btn")).toBeVisible();
+  await page.mouse.wheel(0, 3000); await page.waitForTimeout(300);
+  const g = await page.evaluate(() => ({ bank: document.querySelector(".mt-bank").getBoundingClientRect().bottom, dock: document.querySelector("#confirm-btn").getBoundingClientRect().top, w: document.documentElement.scrollWidth - innerWidth }));
+  expect(g.bank).toBeLessThanOrEqual(g.dock); expect(g.w).toBeLessThanOrEqual(0);
+  expect(errors).toEqual([]);
+});

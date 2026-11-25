@@ -118,3 +118,13 @@ test("ядро: оцінювання лише повного порядку, к�
   expect(r.restored).toBe("abcd"); expect(r.shuffled).toBe(true); expect(r.unique).toBeGreaterThan(3); expect(r.never).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test("малий екран, шість довгих пунктів: після прокрутки остання картка не ховається під кнопкою підтвердження", async ({ page, errors }) => {
+  await page.setViewportSize({ width: 360, height: 640 });
+  const long = ["Підписання Переяславської ради між Військом Запорозьким і Московським царством", "Хрещення Русі", "Битва під Крутами", "Проголошення незалежності України 24 серпня", "Чорнобильська катастрофа", "Помаранчева революція"];
+  await open(page, { questions: [{ type: "ordering", text: "Розташуйте події в хронологічному порядку від найдавнішої до найновішої, враховуючи дати", options: long }] });
+  await page.mouse.wheel(0, 3000); await page.waitForTimeout(300);
+  const g = await page.evaluate(() => ({ card: [...document.querySelectorAll(".ord-card")].pop().getBoundingClientRect().bottom, dock: document.querySelector("#confirm-btn").getBoundingClientRect().top, w: document.documentElement.scrollWidth - innerWidth }));
+  expect(g.card).toBeLessThanOrEqual(g.dock); expect(g.w).toBeLessThanOrEqual(0);
+  expect(errors).toEqual([]);
+});

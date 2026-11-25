@@ -138,6 +138,8 @@
 
   /* Впорядкування: картки зі стрілками й ручкою перетягування */
   .answers.ord{display:flex;flex-direction:column;gap:10px;grid-auto-rows:auto;align-content:normal;flex:0 0 auto;max-width:640px;position:relative}
+  /* довгий список (впорядкування, зіставлення) не стискається до висоти екрана: сторінка прокручується, а нижній відступ лишає місце під кнопкою підтвердження */
+  .question-wrap.ord-mode{flex:1 0 auto;min-height:auto;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
   .ord-mode > .question-meta{order:0}.ord-mode > .question-text{order:1}.ord-mode > .feedback{order:2}.ord-mode > .answers{order:3}.ord-mode > .hint{order:4}
   .ord-card{display:flex;align-items:center;gap:10px;padding:9px 8px 9px 4px;min-height:58px;border-radius:16px;background:#F8F9FE;color:#14195A;font-weight:800;font-size:16px;line-height:1.25;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 #fff;position:relative;user-select:none;-webkit-user-select:none}
   .ord-card .grip{width:30px;align-self:stretch;min-height:40px;display:grid;place-items:center;color:#8E98C4;cursor:grab;touch-action:none;flex:0 0 auto;border-radius:10px}
