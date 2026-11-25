@@ -1,6 +1,6 @@
 // Вікно вибору героя й окулярів (для учня в лобі). Самодостатнє: сам додає свої стилі й розмітку.
 // openHeroPicker({ name, avatar, glasses, onSave }) — onSave(avatar, glasses) зберігає вибір; якщо кине помилку, вікно лишається відкритим.
-import { AVATARS, GLASSES, avatarInner, avatarInfo, randomAvatar, esc } from "./live-core.js?v=13";
+import { AVATARS, GLASSES, avatarInner, avatarInfo, randomAvatar, esc } from "./live-core.js?v=14";
 
 const CSS = `
 .hp-back{position:fixed;inset:0;z-index:60;background:rgba(20,14,60,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;font-family:'Manrope',system-ui,sans-serif}

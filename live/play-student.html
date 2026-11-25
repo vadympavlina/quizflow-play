@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=13">
+<link rel="modulepreload" href="live-core.js?v=14">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -80,6 +80,8 @@
   .tchip.multi{background:#D1FAE5;color:#065F46}
   .tchip.text{background:#FEF3C7;color:#78350F}
   .tchip.number{background:#DBEAFE;color:#1E3A8A}
+  .tchip.truefalse{background:#CCFBF1;color:#115E59}
+  .ans .letter svg{width:60%;height:60%}
   /* Розмір шрифту питання й варіантів підбирає fitText() під довжину тексту */
   .question-text{flex:0 0 auto;text-align:center;font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.22;margin:0 auto;max-width:880px;text-shadow:0 2px 12px rgba(0,0,0,.25);overflow-wrap:break-word;hyphens:auto}
   .question-text b,.question-text strong{font-weight:800}
@@ -295,10 +297,10 @@
 const EIC = {search:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg>",flagend:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 22V4\"/><path d=\"M4 4h12l-2 4 2 4H4\"/></svg>",ban:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><line x1=\"5.6\" y1=\"5.6\" x2=\"18.4\" y2=\"18.4\"/></svg>",pause:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"6\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/></svg>",trophy:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z\"/><path d=\"M17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3\"/></svg>",clock:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><polyline points=\"12 7 12 12 15 14\"/></svg>",star:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>",alert:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z\"/><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"/><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"/></svg>",zap:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/></svg>"};
 import {
   db, ref, get, set, onValue, serverTimestamp, readParams, isValidCode, esc, initialsOf, avatarColor,
-  applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, TYPE_LABELS, isFreeform,
+  applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, optMark, TYPE_LABELS, isFreeform,
   optionOrderFor, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner, update,
-} from "./live-core.js?v=13";
+} from "./live-core.js?v=14";
 import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=1";
 
 const $ = (id) => document.getElementById(id);
@@ -408,20 +410,21 @@ function renderQuestion(qi) {
     if (matchMedia("(hover:hover)").matches) setTimeout(() => inp.focus(), 50);
   } else {
     const opts = qq.options || [];
-    const order = shuffle ? optionOrderFor(questions, qi, pid) : opts.map((_, i) => i);
+    const order = shuffle && qq.type !== "truefalse" ? optionOrderFor(questions, qi, pid) : opts.map((_, i) => i);
     shownOrder = order;
     const multi = qq.type === "multi";
     const longest = Math.max(0, ...opts.map(o => String(o ?? "").length));
     $("answers-grid").style.gridTemplateColumns = opts.length <= 2 && longest > 40 ? "1fr" : "1fr 1fr";
     // Колір і буква — за місцем на екрані (перша кнопка завжди А, червона), а не за номером варіанта: вони не «їдуть» разом із перемішаним варіантом
     $("answers-grid").innerHTML = order.map((i, slot) =>
-      `<button type="button" class="ans ${OPT_CLASSES[slot] || "a"}${multi ? "" : " single-only"}" data-i="${i}" aria-pressed="false">
-        <span class="letter">${OPT_LETTERS[slot]}</span>
+      `<button type="button" class="ans ${(qq.type === "truefalse" ? ["d", "a"][slot] : OPT_CLASSES[slot]) || "a"}${multi ? "" : " single-only"}" data-i="${i}" aria-pressed="false">
+        <span class="letter">${optMark(qq.type, slot)}</span>
         <span class="txt">${esc(opts[i])}</span>
         <span class="check" aria-hidden="true"></span>
       </button>`).join("");
     $("q-hint").innerHTML = multi
       ? `Оберіть <b>усі</b> правильні варіанти й натисніть <b>Підтвердити</b><span class="kb"> · <kbd>Пробіл</kbd></span>`
+      : qq.type === "truefalse" ? `Торкніться <b>Правда</b> або <b>Неправда</b><span class="kb"> або натисніть <kbd>1</kbd> чи <kbd>2</kbd></span>`
       : `Торкніться варіанту<span class="kb"> або натисніть <kbd>1</kbd>–<kbd>${opts.length}</kbd></span>`;
   }
 
