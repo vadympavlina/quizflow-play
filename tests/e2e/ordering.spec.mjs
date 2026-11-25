@@ -100,7 +100,7 @@ test("розкриття: правильна відповідь — усі ка�
 test("ядро: оцінювання лише повного порядку, ключ і перемішування пунктів", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
-    const m = await import("/live/live-core.js?v=16");
+    const m = await import("/live/live-core.js?v=17");
     const q = { type: "ordering" };
     const sh = m.shuffleOrdering({ items: ["a", "b", "c", "d"] }, "seed1");
     const unique = new Set(Array.from({ length: 40 }, (_, i) => m.shuffleOrdering({ items: ["a", "b", "c"] }, "s" + i).options.join())).size;
