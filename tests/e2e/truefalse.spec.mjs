@@ -33,7 +33,7 @@ test("відповідь «Неправда» (клавіша 2) записує�
 test("перевірка відповіді: правильна лише та, що збігається з ключем; ярлик типу в ядрі", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
-    const m = await import("/live/live-core.js?v=16");
+    const m = await import("/live/live-core.js?v=17");
     const q = { type: "truefalse" };
     return { yes: m.checkCorrect(q, [0], 0), no: m.checkCorrect(q, [0], 1), both: m.checkCorrect(q, [1], [0, 1]), none: m.checkCorrect(q, [1], null),
       types: m.LIVE_TYPES, chip: m.typeChip("truefalse"), mark0: m.optMark("truefalse", 0), markL: m.optMark("single", 2) };

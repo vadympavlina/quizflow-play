@@ -98,7 +98,7 @@ test("розкриття: усі пари вірні — усі рядки зе�
 test("ядро: оцінювання лише всіх пар, відбір питань і перемішування без пар навпроти", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
-    const m = await import("/live/live-core.js?v=16");
+    const m = await import("/live/live-core.js?v=17");
     const mk = (rights, correct, n = rights.length) => ({ type: "matching", pairs: Array.from({ length: n }, (_, i) => ({ left: "П" + i, options: rights, correct: correct[i] })) });
     const q = mk(["A", "B", "C", "D"], [2, 0, 3, 1]);
     const sh = m.shuffleMatching(q, "seed");
@@ -106,13 +106,18 @@ test("ядро: оцінювання лише всіх пар, відбір пи
     return {
       full: m.checkCorrect({ type: "matching" }, [2, 0, 3, 1], [2, 0, 3, 1]), swap: m.checkCorrect({ type: "matching" }, [2, 0, 3, 1], [0, 2, 3, 1]), short: m.checkCorrect({ type: "matching" }, [2, 0, 3, 1], [2, 0, 3]),
       ok: m.isLiveQuestion(q), seven: m.isLiveQuestion(mk(["1", "2", "3", "4", "5", "6", "7"], [0, 1, 2, 3, 4, 5, 6])), one: m.isLiveQuestion(mk(["A"], [0])),
+      // кожна пара має власні варіанти (так створює конструктор): у гру йдуть правильні відповіді, хибні варіанти ігноруються
       extra: m.isLiveQuestion({ type: "matching", pairs: [{ left: "a", options: ["x", "y", "z"], correct: 0 }, { left: "b", options: ["x", "y", "z"], correct: 1 }] }),
-      differ: m.isLiveQuestion({ type: "matching", pairs: [{ left: "a", options: ["x", "y"], correct: 0 }, { left: "b", options: ["y", "x"], correct: 0 }] }),
+      differ: m.isLiveQuestion({ type: "matching", pairs: [{ left: "a", options: ["x", "q", "w"], correct: 0 }, { left: "b", options: ["e", "r", "y"], correct: 2 }] }),
+      sameAnswer: m.isLiveQuestion({ type: "matching", pairs: [{ left: "a", options: ["x", "q"], correct: 0 }, { left: "b", options: ["w", "x"], correct: 1 }] }),
+      badCorrect: m.isLiveQuestion({ type: "matching", pairs: [{ left: "a", options: ["x", "q"], correct: 5 }, { left: "b", options: ["w", "x"], correct: 1 }] }),
+      own: m.shuffleMatching({ type: "matching", pairs: [{ left: "a", options: ["x", "q", "w"], correct: 0 }, { left: "b", options: ["e", "r", "y"], correct: 2 }, { left: "c", options: ["k", "l"], correct: 1 }] }, "s9"),
       dup: m.isLiveQuestion(mk(["A", "B"], [0, 0])), emptyLeft: m.isLiveQuestion({ type: "matching", pairs: [{ left: "", options: ["x", "y"], correct: 0 }, { left: "b", options: ["x", "y"], correct: 1 }] }),
       restored: sh.correct.map(c => sh.options[c]).join(""), lefts: sh.lefts.join(), sorted: [...sh.options].sort().join(""), noIdentity, chip: m.typeChip("matching"), types: m.LIVE_TYPES };
   });
   expect(r.full).toBe(true); expect(r.swap).toBe(false); expect(r.short).toBe(false);
-  expect(r.ok).toBe(true); expect(r.seven).toBe(false); expect(r.one).toBe(false); expect(r.extra).toBe(false); expect(r.differ).toBe(false); expect(r.dup).toBe(false); expect(r.emptyLeft).toBe(false);
+  expect(r.ok).toBe(true); expect(r.seven).toBe(false); expect(r.one).toBe(false); expect(r.extra).toBe(true); expect(r.differ).toBe(true); expect(r.sameAnswer).toBe(false); expect(r.badCorrect).toBe(false); expect(r.dup).toBe(false);
+  expect(r.own.correct.map(c => r.own.options[c]).join("")).toBe("xyl"); expect([...r.own.options].sort().join("")).toBe("lxy"); expect(r.emptyLeft).toBe(false);
   expect(r.restored).toBe("CADB"); expect(r.lefts).toBe("П0,П1,П2,П3"); expect(r.sorted).toBe("ABCD"); expect(r.noIdentity).toBe(true);
   expect(r.chip).toContain("Зіставте пари"); expect(r.types).toContain("matching");
   expect(errors).toEqual([]);
