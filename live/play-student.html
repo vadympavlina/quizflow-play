@@ -356,7 +356,7 @@ import {
   optionOrderFor, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner, update,
 } from "./live-core.js?v=17";
-import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=1";
+import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=2";
 
 const $ = (id) => document.getElementById(id);
 let timerId = null, wasOpen = false;
@@ -394,6 +394,7 @@ paintMe();
 // Поки гра не запущена, учень може змінити героя й окуляри (правила бази дозволяють це лише в лобі)
 $("lo-change").addEventListener("click", () => openHeroPicker({
   avatar: me.avatar, glasses: me.glasses,
+  hint: "Видно викладачу й усім у грі. Змінити можна, поки гра не почалась.",
   onSave: async (avatar, glasses) => {
     if (st.status !== "lobby") throw new Error("Гра вже почалась — героя змінити не можна.");
     try { await update(ref(db, `rooms/${code}/players/${pid}`), { avatar, glasses: glasses || null }); }

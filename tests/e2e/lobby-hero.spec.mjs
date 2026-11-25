@@ -20,6 +20,8 @@ test("лобі: «Змінити героя» відкриває вибір, з�
   const heroId = await target.getAttribute("data-hero");
   await target.click();
   await expect(dlg.locator(`[data-hero="${heroId}"]`)).toHaveAttribute("aria-checked", "true");
+  await dlg.locator('[data-tab="gls"]').click();                                // вкладка «Окуляри»
+  await expect(dlg.locator('[data-gl=""]')).toBeVisible();
   await dlg.locator('[data-gl=""]').click();                                    // без окулярів
   await dlg.locator('[data-r="ok"]').click();
   await expect(dlg).toHaveCount(0);
@@ -63,6 +65,10 @@ test.describe("телефон", () => {
     const box = await page.locator(".hp-back.open .hp").boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(390.5);
     expect(box.y + box.height).toBeLessThanOrEqual(844.5);
+    expect(box.height, "шторка майже на весь екран").toBeGreaterThan(844 * 0.85);
+    const tile = await page.locator(".hp-back.open [data-hero]").first().locator(".hp-f").boundingBox();
+    expect(tile.width, "плитка героя велика, зручна для пальця").toBeGreaterThanOrEqual(78);
+    await expect(page.locator(".hp-back.open .hp-nm").first()).toBeVisible();      // ім'я героя під плиткою
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
     expect(errors).toEqual([]);
   });
@@ -75,5 +81,54 @@ test("окремої кнопки немає: вибір відкриваєть�
   await expect(page.locator("#lo-change")).toHaveAttribute("aria-label", "Змінити героя");
   await page.locator("#lo-av").click();                                                // клік саме по аватару
   await expect(page.locator(".hp-back.open")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("вкладки «Герой» / «Окуляри», навігація стрілками по сітці, Home/End", async ({ page, errors }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await seed(page, { rooms: { "12345678": room() } }, "");
+  await page.goto(URL_);
+  await page.locator("#lo-change").click();
+  const dlg = page.locator(".hp-back.open");
+  await expect(dlg.locator("#hp-pan-h")).toBeVisible();
+  await expect(dlg.locator("#hp-pan-g")).toBeHidden();
+  await dlg.locator('[data-tab="gls"]').click();
+  await expect(dlg.locator("#hp-pan-g")).toBeVisible();
+  await expect(dlg.locator("#hp-pan-h")).toBeHidden();
+  await expect(dlg.locator('[data-gl="round"]')).toHaveAttribute("aria-checked", "true");   // обрані окуляри відмічені
+  await dlg.locator('[data-tab="hero"]').click();
+  // стрілки: праворуч — наступний герой, униз — на цілий рядок сітки, Home/End — перший/останній
+  const sel = () => dlg.locator('[data-hero][aria-checked="true"]').getAttribute("data-hero");
+  const all = await dlg.locator("[data-hero]").evaluateAll(els => els.map(e => e.dataset.hero));
+  const cols = await dlg.locator("#hp-pan-h").evaluate(g => getComputedStyle(g).gridTemplateColumns.split(" ").length);
+  await dlg.locator('[data-hero][aria-checked="true"]').focus();
+  const i0 = all.indexOf(await sel());
+  await page.keyboard.press("ArrowRight"); expect(await sel()).toBe(all[i0 + 1]);
+  await page.keyboard.press("ArrowDown"); expect(await sel()).toBe(all[i0 + 1 + cols]);
+  await page.keyboard.press("Home"); expect(await sel()).toBe(all[0]);
+  await page.keyboard.press("End"); expect(await sel()).toBe(all[all.length - 1]);
+  expect(errors).toEqual([]);
+});
+
+test("вхід у гру: вікно вибору героя — зміни застосовуються лише після «Готово», Escape їх відкидає", async ({ page, errors }) => {
+  await seed(page, { users: { t1: { role: "teacher", name: "Олена" } }, rooms: { "12345678": { status: "lobby", testTitle: "Тест", qCount: 3, hostUid: "t1", createdAt: Date.now(), players: {} } } });
+  await page.goto("/?code=12345678");
+  await expect(page.locator("#step-nick")).toBeVisible();
+  const name0 = await page.locator("#hero-name").textContent();
+  await page.locator("#av-open").click();
+  const dlg = page.locator(".hp-back.open");
+  await expect(dlg).toBeVisible();
+  const other = dlg.locator("[data-hero]").filter({ hasNot: page.locator('[aria-checked="true"]') }).first();
+  await other.click();
+  await page.keyboard.press("Escape");                                              // відкинули
+  await expect(dlg).toHaveCount(0);
+  expect(await page.locator("#hero-name").textContent()).toBe(name0);
+  await page.locator("#av-open2").click();
+  const t2 = dlg.locator("[data-hero]").filter({ hasNot: page.locator('[aria-checked="true"]') }).nth(2);
+  const nm = await t2.getAttribute("aria-label");
+  await t2.click();
+  await dlg.locator('[data-r="ok"]').click();                                       // зберегли
+  await expect(dlg).toHaveCount(0);
+  await expect(page.locator("#hero-name")).toHaveText(nm);
   expect(errors).toEqual([]);
 });
