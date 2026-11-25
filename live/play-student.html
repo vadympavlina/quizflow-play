@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=15">
+<link rel="modulepreload" href="live-core.js?v=16">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -82,6 +82,7 @@
   .tchip.number{background:#DBEAFE;color:#1E3A8A}
   .tchip.truefalse{background:#CCFBF1;color:#115E59}
   .tchip.ordering{background:#E0E7FF;color:#3730A3}
+  .tchip.matching{background:#FCE7F3;color:#9D174D}
   .ans .letter svg{width:60%;height:60%}
   /* Розмір шрифту питання й варіантів підбирає fitText() під довжину тексту */
   .question-text{flex:0 0 auto;text-align:center;font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.22;margin:0 auto;max-width:880px;text-shadow:0 2px 12px rgba(0,0,0,.25);overflow-wrap:break-word;hyphens:auto}
@@ -162,6 +163,29 @@
   .ord-card.bad{background:#FEF2F2;box-shadow:0 8px 22px rgba(0,0,0,.2),inset 0 0 0 2.5px #EF4444}
   .ord-card.bad .num{background:#EF4444;color:#fff}.ord-card.bad .res{color:#DC2626}
   @media (prefers-reduced-motion:reduce){.ord-card{transition:none !important}}
+
+  /* Зіставлення: пункти зі слотами й «банк» варіантів */
+  .mt-row{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 10px;min-height:58px;border-radius:16px;background:#F8F9FE;color:#14195A;font-weight:800;font-size:16px;line-height:1.25;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 #fff;position:relative}
+  .mt-row .num{width:28px;height:28px;border-radius:9px;background:#E4E8FA;color:#3730A3;display:grid;place-items:center;font:800 13px "Geist Mono",monospace;flex:0 0 auto}
+  .mt-row .txt{flex:1;min-width:0;overflow-wrap:anywhere;hyphens:auto}
+  .mt-row button.txt{border:0;background:none;padding:6px 0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+  .mt-slot{flex:0 0 auto;min-width:128px;max-width:50%;min-height:42px;padding:0 12px;border-radius:12px;border:2px dashed #B8C0E6;background:transparent;color:#7A84B5;font:700 13px Manrope,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer}
+  .mt-row.sel{box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 0 3px #A78BFA}
+  .mt-row.sel .mt-slot{border-color:#7C3AED;color:#6D28D9;background:#F3EEFF}
+  .mt-row.fill .mt-slot{border:2px solid #C7CCF0;background:#fff;color:#14195A;font:800 15px Manrope,sans-serif}
+  .mt-slot .x{width:20px;height:20px;border-radius:50%;background:#E9ECFA;color:#3730A3;display:grid;place-items:center;flex:0 0 auto}
+  .mt-slot:disabled,.mt-row button.txt:disabled{cursor:default}
+  .mt-row button:focus-visible,.mt-chip:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
+  .mt-bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;padding:12px;border-radius:16px;background:rgba(10,14,50,.45);border:1px solid rgba(255,255,255,.14)}
+  .mt-bank .cap{width:100%;font:700 12px Manrope,sans-serif;color:#B8C0E6}
+  .mt-chip{padding:10px 16px;border-radius:999px;background:#fff;color:#14195A;font:800 15px Manrope,sans-serif;border:0;box-shadow:0 4px 12px rgba(0,0,0,.25);min-height:42px;cursor:pointer}
+  .mt-chip:disabled{opacity:.22;box-shadow:none;cursor:default}
+  .mt-row.ok{background:#ECFDF5;box-shadow:0 8px 22px rgba(0,0,0,.2),inset 0 0 0 2.5px #10B981}.mt-row.ok .num{background:#10B981;color:#fff}
+  .mt-row.bad{background:#FEF2F2;box-shadow:0 8px 22px rgba(0,0,0,.2),inset 0 0 0 2.5px #EF4444}.mt-row.bad .num{background:#EF4444;color:#fff}
+  .mt-res{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:0 0 auto;max-width:55%;font:800 14px Manrope,sans-serif;text-align:right;overflow-wrap:anywhere}
+  .mt-res .row{display:flex;align-items:center;gap:6px}
+  .mt-row.ok .mt-res{color:#059669}.mt-row.bad .mt-res .row{color:#DC2626}
+  .mt-res .good{color:#047857;font:800 13px Manrope,sans-serif}
   .ans.single-only.correct-ans .check,.ans.single-only.my-wrong .check{display:grid}
 
   .text-answer-wrap{margin:26px auto 0;max-width:640px;width:100%}
@@ -329,7 +353,7 @@ import {
   applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, optMark, TYPE_LABELS, isFreeform, orderList,
   optionOrderFor, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner, update,
-} from "./live-core.js?v=15";
+} from "./live-core.js?v=16";
 import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=1";
 
 const $ = (id) => document.getElementById(id);
@@ -427,8 +451,13 @@ function renderQuestion(qi) {
   $("answers-grid").hidden = free;
   $("text-form").hidden = !free;
   $("answers-grid").classList.remove("ord", "rev", "lock");
-  document.querySelector(".question-wrap").classList.toggle("ord-mode", ord);
-  if (ord) {
+  const mt = qq.type === "matching";
+  document.querySelector(".question-wrap").classList.toggle("ord-mode", ord || mt);
+  if (mt) {
+    mtPick = (qq.lefts || []).map(() => null); mtSel = 0; mtSig = "";
+    const g = $("answers-grid"); g.classList.add("ord"); g.style.gridTemplateColumns = ""; g.innerHTML = "";
+    $("q-hint").innerHTML = `Торкніться пункту, потім варіанта відповіді<span class="kb"> · клавіші <kbd>1</kbd>–<kbd>${(qq.lefts || []).length}</kbd> обирають пункт</span>. Торкніться заповненої відповіді, щоб прибрати її`;
+  } else if (ord) {
     // Пункти приходять уже перемішаними (правильний порядок у ключі викладача) — усі бачать однаковий стартовий порядок
     const opts = qq.options || [];
     const g = $("answers-grid");
@@ -496,6 +525,8 @@ function paint() {
 
   if (qq.type === "ordering") {
     paintOrdering(isReveal ? revealInfo() : null, locked);
+  } else if (qq.type === "matching") {
+    paintMatching(isReveal ? revealInfo() : null, locked);
   } else if (!isFreeform(qq)) {
     const correct = isReveal ? new Set(asIndexList(revealInfo().correct)) : null;
     document.querySelectorAll("#answers-grid .ans").forEach(b => {
@@ -521,10 +552,11 @@ function paint() {
   }
 
   // Док знизу
-  const multiOpen = (qq.type === "multi" && canAnswer() && multiSel.size > 0) || (qq.type === "ordering" && canAnswer());
-  const isOrd = qq.type === "ordering";
-  $("confirm-lbl").textContent = isOrd ? "Підтвердити порядок" : "Підтвердити";
-  $("confirm-cnt").hidden = isOrd;
+  const mtDone = qq.type === "matching" && canAnswer() && mtPick.length > 0 && mtPick.every(v => v != null);
+  const multiOpen = (qq.type === "multi" && canAnswer() && multiSel.size > 0) || (qq.type === "ordering" && canAnswer()) || mtDone;
+  const isOrd = qq.type === "ordering", isMtq = qq.type === "matching";
+  $("confirm-lbl").textContent = isOrd ? "Підтвердити порядок" : isMtq ? "Підтвердити відповіді" : "Підтвердити";
+  $("confirm-cnt").hidden = isOrd || isMtq;
   $("confirm-cnt").textContent = multiSel.size;
   $("confirm-btn").classList.toggle("show", multiOpen);
   $("lock-banner").classList.toggle("show", !!myAnswer && st.status === "question");
@@ -561,7 +593,12 @@ function renderFeedback(qq) {
       const hit = got.filter((v, k) => want[k] === v).length;
       why = `<div class="sub">На своїх місцях ${hit} з ${want.length} · бали лише за повний порядок</div>`;
     }
-    cls = "bad"; html = `<div class="big"><span class="fb-ico x" aria-hidden="true"></span>${qq.type === "ordering" ? "Не зовсім" : "Неправильно"}</div>${why}${myAnswer.auto ? `<div class="sub">Зараховано введене: «${esc(myAnswer.value)}»</div>` : ""}${myAnswer.gradedByTeacher ? `<div class="sub">Перевірено викладачем</div>` : ""}${refLine}`;
+    if (qq.type === "matching") {
+      const want = orderList(ref_), got = orderList(myAnswer.value);
+      const hit = got.filter((v, k) => want[k] === v).length;
+      why = `<div class="sub">Правильно ${hit} з ${want.length} · бали лише за всі пари</div>`;
+    }
+    cls = "bad"; html = `<div class="big"><span class="fb-ico x" aria-hidden="true"></span>${qq.type === "ordering" || qq.type === "matching" ? "Не зовсім" : "Неправильно"}</div>${why}${myAnswer.auto ? `<div class="sub">Зараховано введене: «${esc(myAnswer.value)}»</div>` : ""}${myAnswer.gradedByTeacher ? `<div class="sub">Перевірено викладачем</div>` : ""}${refLine}`;
   }
   if (acc) {
     // Без місць і балів: серія правильних підряд і скільки відсотків класу відповіли правильно
@@ -698,6 +735,58 @@ const endDrag = (e) => {
 $("answers-grid").addEventListener("pointerup", endDrag);
 $("answers-grid").addEventListener("pointercancel", endDrag);
 
+// ─── Зіставлення ───────────────────────────────────────────────────────
+const MT_OK = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
+const MT_BAD = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+const MT_X = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+let mtPick = [], mtSel = 0, mtSig = "";   // mtPick[i] — номер відповіді (з options), обраної для пункту i; mtSel — вибраний пункт
+const mtNextEmpty = (from) => { const n = mtPick.length; for (let k = 0; k < n; k++) { const i = (from + k) % n; if (mtPick[i] == null) return i; } return -1; };
+function paintMatching(rev, locked) {
+  const qq = q(), lefts = qq.lefts || [], opts = qq.options || [], g = $("answers-grid");
+  if (myAnswer) { const v = orderList(myAnswer.value); mtPick = lefts.map((_, i) => Number.isInteger(v[i]) ? v[i] : null); }
+  const sig = JSON.stringify([mtPick, mtSel, !!rev, locked, rev ? rev.correct : null, answered()]);
+  if (sig === mtSig) return;
+  mtSig = sig;
+  const focusKey = document.activeElement?.dataset?.mt;
+  let html;
+  if (rev) {
+    const want = orderList(rev.correct);
+    html = lefts.map((l, i) => {
+      const pick = mtPick[i], ok = myAnswer && pick === want[i];
+      const res = !myAnswer ? `<span class="row"><span>Без відповіді</span></span><span class="good">Правильно: ${esc(opts[want[i]] ?? "")}</span>`
+        : ok ? `<span class="row">${MT_OK}<span>${esc(opts[pick] ?? "")}</span></span>`
+        : `<span class="row"><span>${pick == null ? "—" : esc(opts[pick] ?? "")}</span>${MT_BAD}</span><span class="good">Правильно: ${esc(opts[want[i]] ?? "")}</span>`;
+      return `<div class="mt-row ${!myAnswer ? "" : ok ? "ok" : "bad"}"><span class="num">${i + 1}</span><span class="txt">${esc(l)}</span><span class="mt-res">${res}</span></div>`;
+    }).join("");
+  } else {
+    const used = new Set(mtPick.filter(v => v != null));
+    const dis = locked ? " disabled" : "";
+    html = lefts.map((l, i) => {
+      const pick = mtPick[i], sel = !locked && mtSel === i;
+      const slot = pick != null
+        ? `<button type="button" class="mt-slot" data-mt="s${i}" data-r="${i}"${dis} aria-label="Прибрати відповідь для пункту ${i + 1}"><span>${esc(opts[pick] ?? "")}</span><span class="x">${MT_X}</span></button>`
+        : `<button type="button" class="mt-slot" data-mt="s${i}" data-r="${i}"${dis} aria-label="Обрати відповідь для пункту ${i + 1}">${sel ? "Оберіть відповідь" : "Торкніться"}</button>`;
+      return `<div class="mt-row${sel ? " sel" : ""}${pick != null ? " fill" : ""}"><span class="num">${i + 1}</span><button type="button" class="txt" data-mt="t${i}" data-r="${i}"${dis}>${esc(l)}</button>${slot}</div>`;
+    }).join("");
+    if (!answered()) html += `<div class="mt-bank"><span class="cap">Варіанти</span>${opts.map((o, k) => `<button type="button" class="mt-chip" data-mt="c${k}" data-o="${k}"${locked || used.has(k) ? " disabled" : ""}>${esc(o)}</button>`).join("")}</div>`;
+  }
+  g.innerHTML = html;
+  if (focusKey) g.querySelector(`[data-mt="${focusKey}"]:not(:disabled)`)?.focus({ preventScroll: true });
+}
+$("answers-grid").addEventListener("click", (e) => {
+  if (q()?.type !== "matching" || !canAnswer()) return;
+  const slot = e.target.closest(".mt-slot"), name = e.target.closest("button.txt"), chip = e.target.closest(".mt-chip");
+  if (slot) { const i = +slot.dataset.r; mtPick[i] = null; mtSel = i; }
+  else if (name) mtSel = +name.dataset.r;
+  else if (chip && !chip.disabled) {
+    if (!(mtSel >= 0 && mtSel < mtPick.length)) mtSel = Math.max(0, mtNextEmpty(0));
+    mtPick[mtSel] = +chip.dataset.o;
+    const nx = mtNextEmpty(mtSel + 1); if (nx >= 0) mtSel = nx;
+  } else return;
+  navigator.vibrate?.(8);
+  paint();
+});
+
 // ─── Відповідь ─────────────────────────────────────────────────────────
 async function submit(value) {
   if (!canAnswer()) return;
@@ -748,6 +837,7 @@ $("answers-grid").addEventListener("click", (e) => {
 });
 $("confirm-btn").addEventListener("click", () => {
   if (q()?.type === "ordering") { if (canAnswer()) submit(curOrder()); return; }
+  if (q()?.type === "matching") { if (canAnswer() && mtPick.length && mtPick.every(v => v != null)) submit([...mtPick]); return; }
   if (multiSel.size) submit([...multiSel].sort((a, b) => a - b));
 });
 $("text-form").addEventListener("submit", (e) => {
@@ -765,6 +855,10 @@ $("text-form").addEventListener("submit", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.target.closest("input,textarea") || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.target.closest(".ord-card")) return;     // пробіл на стрілці картки — це клік, а не «Підтвердити»
+  if (q()?.type === "matching") {
+    if (/^[1-9]$/.test(e.key) && canAnswer() && +e.key <= mtPick.length) { e.preventDefault(); mtSel = +e.key - 1; paint(); return; }
+    if (e.key === " " && e.target.closest("button")) return;
+  }
   if (e.key === " " && $("confirm-btn").classList.contains("show")) { e.preventDefault(); $("confirm-btn").click(); return; }
   const btns = [...document.querySelectorAll("#answers-grid .ans")];
   if (!btns.length) return;
