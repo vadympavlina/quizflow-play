@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=14">
+<link rel="modulepreload" href="live-core.js?v=15">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -81,6 +81,7 @@
   .tchip.text{background:#FEF3C7;color:#78350F}
   .tchip.number{background:#DBEAFE;color:#1E3A8A}
   .tchip.truefalse{background:#CCFBF1;color:#115E59}
+  .tchip.ordering{background:#E0E7FF;color:#3730A3}
   .ans .letter svg{width:60%;height:60%}
   /* Розмір шрифту питання й варіантів підбирає fitText() під довжину тексту */
   .question-text{flex:0 0 auto;text-align:center;font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.22;margin:0 auto;max-width:880px;text-shadow:0 2px 12px rgba(0,0,0,.25);overflow-wrap:break-word;hyphens:auto}
@@ -133,6 +134,34 @@
   .ans.my-wrong .check{background:#EF4444;border-color:#fff;color:#fff}
   .ans.wrong-ans{filter:saturate(.3) opacity(.3)}
   .ans.single-only .check{display:none}
+
+  /* Впорядкування: картки зі стрілками й ручкою перетягування */
+  .answers.ord{display:flex;flex-direction:column;gap:10px;grid-auto-rows:auto;align-content:normal;flex:0 0 auto;max-width:640px;position:relative}
+  .ord-mode > .question-meta{order:0}.ord-mode > .question-text{order:1}.ord-mode > .feedback{order:2}.ord-mode > .answers{order:3}.ord-mode > .hint{order:4}
+  .ord-card{display:flex;align-items:center;gap:10px;padding:9px 8px 9px 4px;min-height:58px;border-radius:16px;background:#F8F9FE;color:#14195A;font-weight:800;font-size:16px;line-height:1.25;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 #fff;position:relative;user-select:none;-webkit-user-select:none}
+  .ord-card .grip{width:30px;align-self:stretch;min-height:40px;display:grid;place-items:center;color:#8E98C4;cursor:grab;touch-action:none;flex:0 0 auto;border-radius:10px}
+  .ord-card .grip:hover{color:#4B55A0}
+  .ord-card .num{width:28px;height:28px;border-radius:9px;background:#E4E8FA;color:#3730A3;display:grid;place-items:center;font:800 13px "Geist Mono",monospace;flex:0 0 auto}
+  .ord-card .txt{flex:1;min-width:0;overflow-wrap:anywhere;hyphens:auto}
+  .ord-card .mv{display:flex;gap:6px;flex:0 0 auto}
+  .ord-card .mv button{width:40px;height:40px;border-radius:12px;border:none;background:#E9ECFA;color:#3730A3;display:grid;place-items:center;cursor:pointer;padding:0}
+  .ord-card .mv button:active{transform:scale(.94)}
+  .ord-card .mv button[aria-disabled="true"]{opacity:.3;cursor:default}
+  .ord-card .mv button:focus-visible,.ord-card .grip:focus-visible{outline:3px solid #A78BFA;outline-offset:1px}
+  .ord-card .res{display:none;align-items:center;gap:8px;flex:0 0 auto;padding-right:6px}
+  .ord-card .res small{font:700 11.5px Manrope,sans-serif;color:#B91C1C;white-space:nowrap}
+  .ord-card.drag{z-index:6;cursor:grabbing;box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 0 3px #A78BFA;transition:none}
+  .ord-card.drag .grip{cursor:grabbing;color:#6D28D9}
+  .answers.ord.lock .ord-card .grip{opacity:.35;cursor:default}
+  .answers.ord.lock .ord-card .mv{opacity:.4}
+  .answers.ord.rev .ord-card .mv,.answers.ord.rev .ord-card .grip{display:none}
+  .answers.ord.rev .ord-card{padding-left:8px;padding-right:10px}
+  .answers.ord.rev .ord-card .res{display:flex}
+  .ord-card.ok{background:#ECFDF5;box-shadow:0 8px 22px rgba(0,0,0,.2),inset 0 0 0 2.5px #10B981}
+  .ord-card.ok .num{background:#10B981;color:#fff}.ord-card.ok .res{color:#059669}
+  .ord-card.bad{background:#FEF2F2;box-shadow:0 8px 22px rgba(0,0,0,.2),inset 0 0 0 2.5px #EF4444}
+  .ord-card.bad .num{background:#EF4444;color:#fff}.ord-card.bad .res{color:#DC2626}
+  @media (prefers-reduced-motion:reduce){.ord-card{transition:none !important}}
   .ans.single-only.correct-ans .check,.ans.single-only.my-wrong .check{display:grid}
 
   .text-answer-wrap{margin:26px auto 0;max-width:640px;width:100%}
@@ -288,7 +317,7 @@
 </main>
 
 <div class="dock">
-  <button class="confirm-btn" id="confirm-btn" type="button">Підтвердити <span class="cnt" id="confirm-cnt">0</span></button>
+  <button class="confirm-btn" id="confirm-btn" type="button"><span id="confirm-lbl">Підтвердити</span> <span class="cnt" id="confirm-cnt">0</span></button>
   <div class="banner lock" id="lock-banner"><span class="lock-ico" aria-hidden="true"></span>Відповідь прийнято — чекаємо інших</div>
   <div class="banner late" id="late-banner"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>Час вийшов</div>
 </div>
@@ -297,10 +326,10 @@
 const EIC = {search:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg>",flagend:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 22V4\"/><path d=\"M4 4h12l-2 4 2 4H4\"/></svg>",ban:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><line x1=\"5.6\" y1=\"5.6\" x2=\"18.4\" y2=\"18.4\"/></svg>",pause:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"6\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/></svg>",trophy:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z\"/><path d=\"M17 5h3v2a3 3 0 01-3 3M7 5H4v2a3 3 0 003 3\"/></svg>",clock:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><polyline points=\"12 7 12 12 15 14\"/></svg>",star:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/></svg>",alert:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z\"/><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"/><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"/></svg>",zap:"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/></svg>"};
 import {
   db, ref, get, set, onValue, serverTimestamp, readParams, isValidCode, esc, initialsOf, avatarColor,
-  applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, optMark, TYPE_LABELS, isFreeform,
+  applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, optMark, TYPE_LABELS, isFreeform, orderList,
   optionOrderFor, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner, update,
-} from "./live-core.js?v=14";
+} from "./live-core.js?v=15";
 import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=1";
 
 const $ = (id) => document.getElementById(id);
@@ -394,10 +423,26 @@ function renderQuestion(qi) {
   $("q-meta-time").innerHTML = `${EIC.clock.replace(/width="24" height="24"/, 'width="13" height="13" style="vertical-align:-2px;margin-right:4px"')}${timePerQ} с на відповідь`;
   $("q-type-wrap").innerHTML = typeChip(qq.type);
 
-  const free = isFreeform(qq);
+  const free = isFreeform(qq), ord = qq.type === "ordering";
   $("answers-grid").hidden = free;
   $("text-form").hidden = !free;
-  if (free) {
+  $("answers-grid").classList.remove("ord", "rev", "lock");
+  document.querySelector(".question-wrap").classList.toggle("ord-mode", ord);
+  if (ord) {
+    // Пункти приходять уже перемішаними (правильний порядок у ключі викладача) — усі бачать однаковий стартовий порядок
+    const opts = qq.options || [];
+    const g = $("answers-grid");
+    g.classList.add("ord"); g.style.gridTemplateColumns = "";
+    g.innerHTML = opts.map((o, i) => `<div class="ord-card" data-i="${i}">
+        <span class="grip" aria-hidden="true">${ORD_GRIP}</span>
+        <span class="num"></span>
+        <span class="txt">${esc(o)}</span>
+        <span class="mv"><button type="button" data-d="-1" aria-label="Підняти вище: ${esc(o)}">${ORD_UP}</button><button type="button" data-d="1" aria-label="Опустити нижче: ${esc(o)}">${ORD_DOWN}</button></span>
+        <span class="res"></span>
+      </div>`).join("");
+    syncOrd();
+    $("q-hint").innerHTML = `Перетягніть картки за ручку зліва або скористайтесь стрілками, тоді натисніть <b>Підтвердити порядок</b>`;
+  } else if (free) {
     $("answers-grid").innerHTML = "";
     const inp = $("text-inp");
     inp.value = ""; inp.disabled = false;
@@ -449,7 +494,9 @@ function paint() {
   const picked = new Set(myAnswer ? asIndexList(value) : multiSel);
   const locked = !canAnswer();
 
-  if (!isFreeform(qq)) {
+  if (qq.type === "ordering") {
+    paintOrdering(isReveal ? revealInfo() : null, locked);
+  } else if (!isFreeform(qq)) {
     const correct = isReveal ? new Set(asIndexList(revealInfo().correct)) : null;
     document.querySelectorAll("#answers-grid .ans").forEach(b => {
       const i = +b.dataset.i;
@@ -474,7 +521,10 @@ function paint() {
   }
 
   // Док знизу
-  const multiOpen = qq.type === "multi" && canAnswer() && multiSel.size > 0;
+  const multiOpen = (qq.type === "multi" && canAnswer() && multiSel.size > 0) || (qq.type === "ordering" && canAnswer());
+  const isOrd = qq.type === "ordering";
+  $("confirm-lbl").textContent = isOrd ? "Підтвердити порядок" : "Підтвердити";
+  $("confirm-cnt").hidden = isOrd;
   $("confirm-cnt").textContent = multiSel.size;
   $("confirm-btn").classList.toggle("show", multiOpen);
   $("lock-banner").classList.toggle("show", !!myAnswer && st.status === "question");
@@ -506,7 +556,12 @@ function renderFeedback(qq) {
       why = `<div class="sub">${hit < want.length ? `Обрано ${hit} з ${want.length} правильних` : ""}${hit < want.length && extra ? " · " : ""}${extra ? `${extra} ${extra === 1 ? "зайвий варіант" : "зайві варіанти"}` : ""}</div>
         <div class="sub">Зараховується лише повністю правильна відповідь: ${want.map(letterOf).join(", ")}</div>`;
     }
-    cls = "bad"; html = `<div class="big"><span class="fb-ico x" aria-hidden="true"></span>Неправильно</div>${why}${myAnswer.auto ? `<div class="sub">Зараховано введене: «${esc(myAnswer.value)}»</div>` : ""}${myAnswer.gradedByTeacher ? `<div class="sub">Перевірено викладачем</div>` : ""}${refLine}`;
+    if (qq.type === "ordering") {
+      const want = orderList(ref_), got = orderList(myAnswer.value);
+      const hit = got.filter((v, k) => want[k] === v).length;
+      why = `<div class="sub">На своїх місцях ${hit} з ${want.length} · бали лише за повний порядок</div>`;
+    }
+    cls = "bad"; html = `<div class="big"><span class="fb-ico x" aria-hidden="true"></span>${qq.type === "ordering" ? "Не зовсім" : "Неправильно"}</div>${why}${myAnswer.auto ? `<div class="sub">Зараховано введене: «${esc(myAnswer.value)}»</div>` : ""}${myAnswer.gradedByTeacher ? `<div class="sub">Перевірено викладачем</div>` : ""}${refLine}`;
   }
   if (acc) {
     // Без місць і балів: серія правильних підряд і скільки відсотків класу відповіли правильно
@@ -542,6 +597,106 @@ function refit() {
   if (txts.length) fitGroup(txts, { max: mobile ? 19 : 22, min: 11, maxHeight: Math.max(24, room) });
 }
 onRefit(refit, $("q-text"));
+
+// ─── Впорядкування ─────────────────────────────────────────────────────
+const ORD_GRIP = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="5.5" r="1.8"/><circle cx="15" cy="5.5" r="1.8"/><circle cx="9" cy="12" r="1.8"/><circle cx="15" cy="12" r="1.8"/><circle cx="9" cy="18.5" r="1.8"/><circle cx="15" cy="18.5" r="1.8"/></svg>';
+const ORD_UP = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+const ORD_DOWN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+const ORD_OK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
+const ORD_BAD = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+const ordCards = () => [...$("answers-grid").querySelectorAll(".ord-card")];
+const curOrder = () => ordCards().map(c => +c.dataset.i);
+const reduceMotion = () => matchMedia("(prefers-reduced-motion:reduce)").matches;
+// Номери позицій і недоступні стрілки на краях
+function syncOrd() {
+  const cards = ordCards();
+  cards.forEach((c, k) => {
+    c.querySelector(".num").textContent = k + 1;
+    c.querySelector('[data-d="-1"]').setAttribute("aria-disabled", k === 0);
+    c.querySelector('[data-d="1"]').setAttribute("aria-disabled", k === cards.length - 1);
+  });
+}
+// Плавне переставляння: запам'ятовуємо місця, міняємо DOM, програємо зсув
+function flip(mutate, skip) {
+  const cards = ordCards(), before = new Map(cards.map(c => [c, c.getBoundingClientRect().top]));
+  mutate();
+  if (reduceMotion()) return;
+  cards.forEach(c => {
+    if (c === skip) return;
+    const d = before.get(c) - c.getBoundingClientRect().top;
+    if (!d) return;
+    c.style.transition = "none"; c.style.transform = `translateY(${d}px)`;
+    c.getBoundingClientRect();
+    c.style.transition = "transform .18s ease"; c.style.transform = "";
+  });
+}
+function arrangeOrd(order) {
+  const cards = ordCards(), by = new Map(cards.map(c => [+c.dataset.i, c]));
+  if (order.length !== cards.length || order.some(i => !by.has(i)) || curOrder().every((v, k) => v === order[k])) return;
+  const g = $("answers-grid"); order.forEach(i => g.appendChild(by.get(i)));
+}
+function paintOrdering(rev, locked) {
+  const g = $("answers-grid");
+  g.classList.toggle("lock", locked && !rev);
+  g.classList.toggle("rev", !!rev);
+  if (rev) {
+    const want = orderList(rev.correct), mine = myAnswer ? orderList(myAnswer.value) : null;
+    arrangeOrd(want);
+    ordCards().forEach((c, k) => {
+      const idx = +c.dataset.i, pos = mine ? mine.indexOf(idx) : -1, ok = !!mine && pos === k;
+      c.classList.toggle("ok", ok); c.classList.toggle("bad", !!mine && !ok);
+      c.querySelector(".num").textContent = k + 1;
+      const html = !mine ? "" : ok ? ORD_OK : `<small>у вас: ${pos + 1}</small>${ORD_BAD}`;
+      const res = c.querySelector(".res"); if (res.dataset.h !== html) { res.dataset.h = html; res.innerHTML = html; }
+    });
+  } else {
+    ordCards().forEach(c => c.classList.remove("ok", "bad"));
+    if (myAnswer) { arrangeOrd(orderList(myAnswer.value)); syncOrd(); }   // після перезавантаження повертаємо свій порядок
+  }
+}
+function moveOrd(card, dir) {
+  if (!canAnswer()) return;
+  const sib = dir < 0 ? card.previousElementSibling : card.nextElementSibling;
+  if (!sib) return;
+  flip(() => dir < 0 ? card.parentNode.insertBefore(card, sib) : card.parentNode.insertBefore(sib, card));
+  syncOrd(); navigator.vibrate?.(8);
+}
+let drag = null;
+$("answers-grid").addEventListener("click", (e) => {
+  const b = e.target.closest(".ord-card .mv button"); if (!b) return;
+  e.stopPropagation(); moveOrd(b.closest(".ord-card"), +b.dataset.d);
+}, true);
+$("answers-grid").addEventListener("pointerdown", (e) => {
+  const grip = e.target.closest(".grip"); if (!grip || !canAnswer() || q()?.type !== "ordering") return;
+  const card = grip.closest(".ord-card");
+  e.preventDefault();
+  try { grip.setPointerCapture(e.pointerId); } catch {}
+  drag = { card, id: e.pointerId, y0: e.clientY, top0: card.offsetTop };
+  card.classList.add("drag"); card.style.transition = "none";
+});
+$("answers-grid").addEventListener("pointermove", (e) => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const { card } = drag, dy = e.clientY - drag.y0;
+  const center = drag.top0 + dy + card.offsetHeight / 2;
+  for (let guard = 0; guard < 12; guard++) {
+    const next = card.nextElementSibling, prev = card.previousElementSibling;
+    if (next && center > next.offsetTop + next.offsetHeight / 2) flip(() => card.parentNode.insertBefore(next, card), card);
+    else if (prev && center < prev.offsetTop + prev.offsetHeight / 2) flip(() => card.parentNode.insertBefore(card, prev), card);
+    else break;
+  }
+  card.style.transform = `translateY(${dy - (card.offsetTop - drag.top0)}px)`;
+});
+const endDrag = (e) => {
+  if (!drag || e.pointerId !== drag.id) return;
+  const { card } = drag; drag = null;
+  card.classList.remove("drag");
+  if (!reduceMotion()) { card.style.transition = "transform .16s ease"; }
+  card.style.transform = "";
+  setTimeout(() => { card.style.transition = ""; }, 200);
+  syncOrd(); navigator.vibrate?.(8);
+};
+$("answers-grid").addEventListener("pointerup", endDrag);
+$("answers-grid").addEventListener("pointercancel", endDrag);
 
 // ─── Відповідь ─────────────────────────────────────────────────────────
 async function submit(value) {
@@ -583,7 +738,7 @@ function saveDraft(now = false) {
 $("text-inp").addEventListener("input", () => saveDraft());
 
 $("answers-grid").addEventListener("click", (e) => {
-  const b = e.target.closest(".ans"); if (!b || b.disabled) return;
+  const b = e.target.closest(".ans"); if (!b || b.disabled || q()?.type === "ordering") return;
   const i = +b.dataset.i;
   if (q()?.type === "multi") {
     if (!canAnswer()) return;
@@ -592,6 +747,7 @@ $("answers-grid").addEventListener("click", (e) => {
   } else submit(i);
 });
 $("confirm-btn").addEventListener("click", () => {
+  if (q()?.type === "ordering") { if (canAnswer()) submit(curOrder()); return; }
   if (multiSel.size) submit([...multiSel].sort((a, b) => a - b));
 });
 $("text-form").addEventListener("submit", (e) => {
@@ -608,6 +764,7 @@ $("text-form").addEventListener("submit", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.target.closest("input,textarea") || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target.closest(".ord-card")) return;     // пробіл на стрілці картки — це клік, а не «Підтвердити»
   if (e.key === " " && $("confirm-btn").classList.contains("show")) { e.preventDefault(); $("confirm-btn").click(); return; }
   const btns = [...document.querySelectorAll("#answers-grid .ans")];
   if (!btns.length) return;
