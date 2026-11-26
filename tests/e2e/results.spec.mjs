@@ -16,11 +16,12 @@ for (const scoring of ["speed", "correct"]) {
     await seed(page, { rooms: { "12345678": room(scoring) } }, "");
     await page.goto("/live/student-result?code=12345678&pid=p3&nickname=x");
     await page.waitForTimeout(600);
-    await expect(page.locator(".hero .nm")).toContainText("Дмитро");
-    await expect(page.locator(".hero .nm i i")).toHaveCount(0);           // розмітка в імені не виконується
-    await expect(page.locator(".ans div")).toHaveCount(3);
-    await expect(page.locator(".rw.me")).toContainText("Дмитро");
-    if (scoring === "correct") await expect(page.locator(".hero")).not.toContainText("балів");
+    await expect(page.locator(".card .name")).toContainText("Дмитро");
+    await expect(page.locator(".card .name i i")).toHaveCount(0);        // розмітка в імені не виконується
+    await expect(page.locator("#tiles i")).toHaveCount(3);
+    await expect(page.locator(".lad li.me")).toContainText("Дмитро");
+    await expect(page.locator(".bgc")).toHaveAttribute("data-rank", scoring === "speed" ? "0" : "3");  // speed: 4-е місце (фон «решта»); точність: щільний ранг — 3-є
+    if (scoring === "correct") await expect(page.locator(".card")).not.toContainText("балів");
     expect(errors).toEqual([]);
   });
 }
@@ -28,14 +29,39 @@ for (const scoring of ["speed", "correct"]) {
 test("результат учня: дотик по екрану не переривав анімацію (її не можна скасувати випадково)", async ({ page, errors }) => {
   await seed(page, { rooms: { "12345678": room("speed") } }, "");
   await page.goto("/live/student-result?code=12345678&pid=p3&nickname=x");
-  const running = () => page.evaluate(() => document.getAnimations().filter(a => a.playState === "running").length);
-  await expect.poll(running, { message: "анімація стартує", timeout: 4000 }).toBeGreaterThan(0);
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "card");
   const vp = page.viewportSize();
   for (const [fx, fy] of [[.3, .3], [.7, .5], [.5, .8], [.2, .6]]) { await page.mouse.click(vp.width * fx, vp.height * fy); await page.waitForTimeout(60); }
-  expect(await running(), "після кліків анімація досі йде").toBeGreaterThan(0);
-  await page.waitForTimeout(9000);
-  expect(await running(), "сама доходить до кінця").toBe(0);
-  await expect(page.locator(".hero .nm")).toContainText("Дмитро");
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "card");        // після кліків показ іде далі
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "panel", { timeout: 9000 });   // сама доходить до панелі
+  await expect(page.locator(".card .name")).toContainText("Дмитро");
+  expect(errors).toEqual([]);
+});
+
+test("результат учня: фон і напис за місцем (переможець, друге, четверте)", async ({ page, errors }) => {
+  await seed(page, { rooms: { "12345678": room("speed") } }, "");
+  for (const [pid, rank, lab] of [["p0", "1", "Переможець"], ["p2", "2", "Друге місце"], ["p3", "0", "4-е місце"]]) {
+    await page.goto(`/live/student-result?code=12345678&pid=${pid}&nickname=x&t=3000`);
+    await expect(page.locator(".bgc")).toHaveAttribute("data-rank", rank);
+    await expect(page.locator(".card .lab")).toContainText(lab);
+    await expect(page.locator(".card .score .v")).not.toHaveText("");
+  }
+  expect(errors).toEqual([]);
+});
+
+test("результат учня: заморожений кадр ?t=, «Пропустити» і «Ще раз»", async ({ page, errors }) => {
+  await seed(page, { rooms: { "12345678": room("speed") } }, "");
+  await page.goto("/live/student-result?code=12345678&pid=p1&nickname=x&t=8000");
+  await expect(page.locator("#T")).toHaveAttribute("data-frozen", "1");
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "panel");
+  await expect(page.locator("#panel")).toBeVisible();
+  await expect(page.locator("#tiles i.y")).toHaveCount(2);
+  await page.goto("/live/student-result?code=12345678&pid=p1&nickname=x");
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "card");
+  await page.locator("#skip").click();
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "panel");
+  await page.locator("#replay").click();
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "card");
   expect(errors).toEqual([]);
 });
 
