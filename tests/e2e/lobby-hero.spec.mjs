@@ -1,4 +1,4 @@
-// Поки гра не запущена (лобі), учень може змінити героя й окуляри; після старту гри — ні
+// Поки гра не запущена (лобі), учень може змінити героя, окуляри, капелюх і одяг; після старту гри — ні
 import { test, expect, seed, readDb } from "./fixtures.mjs";
 
 const Q = [{ type: "single", text: "Питання", options: ["А", "Б"], correct: 0 }];
@@ -21,13 +21,19 @@ test("лобі: «Змінити героя» відкриває вибір, з�
   await target.click();
   await expect(dlg.locator(`[data-hero="${heroId}"]`)).toHaveAttribute("aria-checked", "true");
   await dlg.locator('[data-tab="gls"]').click();                                // вкладка «Окуляри»
-  await expect(dlg.locator('[data-gl=""]')).toBeVisible();
-  await dlg.locator('[data-gl=""]').click();                                    // без окулярів
+  await expect(dlg.locator('[data-r="g-gls"] [data-v=""]')).toBeVisible();
+  await dlg.locator('[data-r="g-gls"] [data-v=""]').click();                    // без окулярів
+  await dlg.locator('[data-tab="hat"]').click();                                // вкладка «Капелюх»
+  await dlg.locator('[data-r="g-hat"] [data-v="crown"]').click();
+  await dlg.locator('[data-tab="out"]').click();                                // вкладка «Одяг»
+  await dlg.locator('[data-r="g-out"] [data-v="hoodie"]').click();
   await dlg.locator('[data-r="ok"]').click();
   await expect(dlg).toHaveCount(0);
   const p = (await readDb(page)).rooms["12345678"].players.p1;
   expect(p.avatar).toBe(heroId);
   expect(p.glasses ?? null).toBeNull();
+  expect(p.hat).toBe("crown");
+  expect(p.outfit).toBe("hoodie");
   expect(p.nickname).toBe("Оля");                                               // ім'я не чіпаємо
   expect(await page.locator("#lo-av").innerHTML()).not.toBe(before);
   expect(errors).toEqual([]);
@@ -84,23 +90,23 @@ test("окремої кнопки немає: вибір відкриваєть�
   expect(errors).toEqual([]);
 });
 
-test("вкладки «Герой» / «Окуляри», навігація стрілками по сітці, Home/End", async ({ page, errors }) => {
+test("вкладки «Герой» / «Окуляри» / «Капелюх» / «Одяг», навігація стрілками по сітці, Home/End", async ({ page, errors }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await seed(page, { rooms: { "12345678": room() } }, "");
   await page.goto(URL_);
   await page.locator("#lo-change").click();
   const dlg = page.locator(".hp-back.open");
-  await expect(dlg.locator("#hp-pan-h")).toBeVisible();
-  await expect(dlg.locator("#hp-pan-g")).toBeHidden();
+  await expect(dlg.locator("#hp-pan-hero")).toBeVisible();
+  await expect(dlg.locator("#hp-pan-gls")).toBeHidden();
   await dlg.locator('[data-tab="gls"]').click();
-  await expect(dlg.locator("#hp-pan-g")).toBeVisible();
-  await expect(dlg.locator("#hp-pan-h")).toBeHidden();
-  await expect(dlg.locator('[data-gl="round"]')).toHaveAttribute("aria-checked", "true");   // обрані окуляри відмічені
+  await expect(dlg.locator("#hp-pan-gls")).toBeVisible();
+  await expect(dlg.locator("#hp-pan-hero")).toBeHidden();
+  await expect(dlg.locator('[data-r="g-gls"] [data-v="round"]')).toHaveAttribute("aria-checked", "true");   // обрані окуляри відмічені
   await dlg.locator('[data-tab="hero"]').click();
   // стрілки: праворуч — наступний герой, униз — на цілий рядок сітки, Home/End — перший/останній
   const sel = () => dlg.locator('[data-hero][aria-checked="true"]').getAttribute("data-hero");
   const all = await dlg.locator("[data-hero]").evaluateAll(els => els.map(e => e.dataset.hero));
-  const cols = await dlg.locator("#hp-pan-h").evaluate(g => getComputedStyle(g).gridTemplateColumns.split(" ").length);
+  const cols = await dlg.locator("#hp-pan-hero").evaluate(g => getComputedStyle(g).gridTemplateColumns.split(" ").length);
   await dlg.locator('[data-hero][aria-checked="true"]').focus();
   const i0 = all.indexOf(await sel());
   await page.keyboard.press("ArrowRight"); expect(await sel()).toBe(all[i0 + 1]);
