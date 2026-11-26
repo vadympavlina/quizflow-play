@@ -276,6 +276,20 @@
     .player-pill span:last-child{display:none}
     .player-pill{padding:4px}
   }
+  /* Низькі екрани (телефон горизонтально): таймер і відступи стискаються, кнопки відповідей мають мінімальну висоту й не схлопуються; якщо не вміщається — сторінка прокручується */
+  @media (max-height: 520px){
+    .timer-wrap{padding:4px 0 0}
+    .timer{width:44px;height:44px}
+    .timer::before{inset:4px}
+    .timer span{font-size:18px}
+    .question-meta .tm,.hint{display:none}
+    .question-meta{margin:2px 0 6px;gap:4px}
+    .question-text{font-size:21px !important;line-height:1.2}
+    .answers{grid-template-columns:1fr 1fr !important;gap:8px;margin-top:8px;grid-auto-rows:minmax(48px,auto) !important;flex:0 0 auto}
+    .answers > .ans:last-child:nth-child(odd){grid-column:1 / -1;justify-self:center;width:calc(50% - 4px)}
+    .ans{min-height:48px;padding:6px 14px}
+    .question-wrap{padding-bottom:76px;overflow-y:auto}
+  }
 </style>
 <style id="no-zoom">/* iOS збільшує сторінку, якщо в полі вводу шрифт менше 16px; тут цього не буває */@media (pointer:coarse){input,textarea,select,[contenteditable="true"],[contenteditable=""]{font-size:16px!important}html{touch-action:manipulation;-webkit-text-size-adjust:100%}}</style>
 </head>
