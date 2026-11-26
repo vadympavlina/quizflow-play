@@ -80,6 +80,7 @@
   .tchip.multi{background:#D1FAE5;color:#065F46}
   .tchip.text{background:#FEF3C7;color:#78350F}
   .tchip.number{background:#DBEAFE;color:#1E3A8A}
+  .tchip.long{background:#FCE7F3;color:#831843}
   .tchip.truefalse{background:#CCFBF1;color:#115E59}
   .tchip.ordering{background:#E0E7FF;color:#3730A3}
   .tchip.matching{background:#FCE7F3;color:#9D174D}
@@ -494,10 +495,11 @@ function renderQuestion(qi) {
     inp.value = ""; inp.disabled = false;
     clearTimeout(draftTimer); draftSent = ""; $("draft-note").hidden = true;
     inp.inputMode = qq.type === "number" ? "decimal" : "text";
-    inp.placeholder = qq.type === "number" ? "Введіть число…" : "Введіть відповідь…";
+    inp.maxLength = qq.type === "long" ? 500 : 200;
+    inp.placeholder = qq.type === "number" ? "Введіть число…" : qq.type === "long" ? "Напишіть відповідь…" : "Введіть відповідь…";
     $("text-submit").disabled = false;
     $("text-submit").textContent = "Відповісти";
-    $("q-hint").innerHTML = `Введіть відповідь і натисніть <b>Відповісти</b>`;
+    $("q-hint").innerHTML = qq.type === "long" ? `Напишіть відповідь і натисніть <b>Відповісти</b>. Її зарахує викладач` : `Введіть відповідь і натисніть <b>Відповісти</b>`;
     if (matchMedia("(hover:hover)").matches) setTimeout(() => inp.focus(), 50);
   } else {
     const opts = qq.options || [];
@@ -595,6 +597,8 @@ function renderFeedback(qq) {
     cls = "none"; html = `<div class="big">Без відповіді</div>${refLine}`;
   } else if (!graded) {
     cls = "none"; html = `<div class="big">Перевіряємо…</div>${refLine}`;
+  } else if (qq.type === "long" && !myAnswer.isCorrect && !myAnswer.gradedByTeacher) {
+    cls = "none"; html = `<div class="big">Чекаємо оцінку викладача</div><div class="sub">Розгорнуту відповідь зараховує викладач</div>`;
   } else if (myAnswer.isCorrect) {
     cls = "ok"; html = `<div class="big"><span class="fb-ico" aria-hidden="true"></span>Правильно!</div>${acc ? "" : `<div class="pts">+${fmtNum(myAnswer.points || 0)}</div>`}${myAnswer.gradedByTeacher ? `<div class="sub">Зараховано викладачем</div>` : ""}${myAnswer.auto ? `<div class="sub">Ви не натиснули «Відповісти» — зараховано введене</div>` : ""}${refLine}`;
   } else {
@@ -832,7 +836,7 @@ let draftTimer = null, draftSent = "", draftQ = -1;
 function saveDraft(now = false) {
   clearTimeout(draftTimer);
   const run = () => {
-    const qi = st.currentQ, v = $("text-inp").value.trim().slice(0, 200);
+    const qi = st.currentQ, v = $("text-inp").value.trim().slice(0, 500);
     if (!canAnswer() || myAnswer || (v === draftSent && draftQ === qi)) return;
     draftSent = v; draftQ = qi;
     set(ref(db, `${base}/drafts/${qi}/${pid}`), { value: v, at: serverTimestamp() })
