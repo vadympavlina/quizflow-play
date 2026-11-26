@@ -170,7 +170,7 @@ export const avatarInner = (nick, id, opts = {}) => {
     + (gl ? `<g transform="${glT(H)}">${gl.svg}</g>` : "") + (hat ? `<g transform="${hatT(id, H, hat)}">${hat.svg}</g>` : "");
   const vb = hat ? "0 -22 200 200" : "12 8 176 176";
   if (!w) return `<svg viewBox="${vb}" aria-hidden="true">${hero}</svg>`;
-  return `<svg viewBox="${vb}" aria-hidden="true">${NECK}<g transform="${w.T}">${cl.back}</g><ellipse cx="100" cy="${w.chin - 3}" rx="${w.half * .9}" ry="7" fill="url(#cl-neck)"/><g transform="${w.HT}">${hero}</g><g transform="${w.T}">${cl.front}</g></svg>`;
+  return `<svg class="ob" viewBox="${vb}" aria-hidden="true">${NECK}<g transform="${w.T}">${cl.back}</g><ellipse cx="100" cy="${w.chin - 3}" rx="${w.half * .9}" ry="7" fill="url(#cl-neck)"/><g transform="${w.HT}">${hero}</g><g transform="${w.T}">${cl.front}</g></svg>`;
 };
 export const randomAvatar = () => AVATARS[Math.floor(Math.random() * AVATARS.length)]?.id || "";
 
