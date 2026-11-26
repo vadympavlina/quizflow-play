@@ -32,6 +32,7 @@ const CSS = `
 .hp-tabs{order:4;margin:0 20px 2px;padding:4px;background:var(--soft);border-radius:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .hp-tab{appearance:none;border:0;background:transparent;height:44px;border-radius:12px;font:800 15px 'Manrope',system-ui,sans-serif;color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .hp-tab i{font-style:normal;font-weight:700;font-size:12.5px;color:var(--ink3)}
+@media (max-width:360px){.hp-tab{font-size:13.5px;gap:4px}}
 .hp-tab[aria-selected=true]{background:#fff;color:var(--a);box-shadow:0 2px 8px rgba(40,30,110,.14)}
 .hp-scroll{order:5;position:relative;flex:1;min-height:0;overflow-y:auto;padding:14px 20px 18px;overscroll-behavior:contain}
 .hp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px}
@@ -66,6 +67,29 @@ const CSS = `
   .hp-scroll{padding:16px 26px 26px}
   .hp-grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:20px 14px}
 }
+/* Низький екран (телефон горизонтально): дві колонки, кнопка «Готово» завжди в межах екрана, сітка героїв має достатньо місця */
+@media (max-height:520px) and (min-width:480px){
+  .hp-back{align-items:center}
+  .hp{width:calc(100% - 24px);max-width:920px;height:calc(100dvh - 16px);border-radius:22px;display:grid;grid-template-columns:232px minmax(0,1fr)}
+  .hp::before{display:none}
+  .hp-side{display:flex;flex-direction:column;padding:14px 16px;background:linear-gradient(180deg,#F5F3FE,#ECE8FD);border-radius:22px 0 0 22px;min-height:0;overflow:hidden}
+  .hp-main{display:flex;flex-direction:column;min-height:0}
+  .hp-top{padding:0 0 8px}.hp-top h2{font-size:17px}
+  .hp-prev{flex-direction:row;align-items:center;padding:0;gap:10px}
+  .hp-av{width:72px;height:72px;max-width:none;aspect-ratio:auto;border-radius:20px}
+  .hp-who b{font-size:18px}.hp-who span{font-size:12px}
+  .hp-rnd{height:34px;margin-top:4px;font-size:12.5px;padding:0 10px 0 8px}
+  .hp-hint{padding:8px 0 0;font-size:11.5px;line-height:1.35}
+  .hp-foot{margin-top:auto;border:0;padding:0}
+  .hp-ok{height:44px;font-size:15px;border-radius:14px}
+  .hp-tabs{margin:12px 14px 4px;max-width:none}
+  .hp-tab{height:36px;font-size:14px}
+  .hp-scroll{padding:10px 14px 14px}
+  .hp-grid{grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:12px 10px}
+  .hp-x{top:10px;left:186px;right:auto;width:36px;height:36px}
+}
+@media (max-height:520px) and (min-width:480px) and (max-width:640px){.hp-tab{font-size:13px;gap:4px}.hp-tabs{padding:3px;gap:2px}}
+@media (max-height:360px) and (min-width:480px){.hp-hint{display:none}}
 @media (prefers-reduced-motion:reduce){.hp-back,.hp,.hp-f{transition:none}.hp-av.pop{animation:none}}`;
 
 const DICE = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.1" fill="currentColor"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></svg>`;
