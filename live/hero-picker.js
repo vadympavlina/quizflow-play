@@ -1,8 +1,8 @@
-// Вікно вибору героя й окулярів (вхід у гру й лобі). Самодостатнє: саме додає свої стилі й розмітку.
-// openHeroPicker({ avatar, glasses, hint, onSave }) — onSave(avatar, glasses) зберігає вибір; якщо кине помилку, вікно лишається відкритим.
-// Телефон: велика шторка знизу (перегляд, вкладки «Герой» / «Окуляри», сітка з іменами, велика кнопка «Готово»).
+// Вікно вибору героя, окулярів, капелюха й одягу (вхід у гру й лобі). Самодостатнє: саме додає свої стилі й розмітку.
+// openHeroPicker({ avatar, glasses, hat, outfit, hint, onSave }) — onSave(avatar, glasses, hat, outfit) зберігає вибір; якщо кине помилку, вікно лишається відкритим.
+// Телефон: велика шторка знизу (перегляд, вкладки «Герой» / «Окуляри» / «Капелюх» / «Одяг», сітка з іменами, велика кнопка «Готово»).
 // Великий екран: вікно по центру у дві колонки (ліворуч великий перегляд, праворуч вибір).
-import { AVATARS, GLASSES, avatarInner, avatarInfo, randomAvatar, esc } from "./live-core.js?v=14";
+import { AVATARS, GLASSES, HATS, CLOTHES, avatarInner, avatarInfo, randomAvatar, esc } from "./live-core.js?v=15";
 
 const CSS = `
 .hp-back{--a:#5B4FE8;--a2:#4A3FD1;--ink:#1D1930;--ink2:#5F5876;--ink3:#8C86A3;--line:#E4E1F4;--soft:#F2F0FC;position:fixed;inset:0;z-index:60;background:rgba(20,14,60,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;font-family:'Manrope',system-ui,sans-serif}
@@ -29,7 +29,7 @@ const CSS = `
 .hp-rnd:hover{background:var(--soft)}
 .hp-rnd svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .hp-hint{order:3;margin:0;padding:8px 20px 12px;font-size:13px;line-height:1.4;font-weight:600;color:var(--ink3)}
-.hp-tabs{order:4;margin:0 20px 2px;padding:4px;background:var(--soft);border-radius:16px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.hp-tabs{order:4;margin:0 20px 2px;padding:4px;background:var(--soft);border-radius:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .hp-tab{appearance:none;border:0;background:transparent;height:44px;border-radius:12px;font:800 15px 'Manrope',system-ui,sans-serif;color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .hp-tab i{font-style:normal;font-weight:700;font-size:12.5px;color:var(--ink3)}
 .hp-tab[aria-selected=true]{background:#fff;color:var(--a);box-shadow:0 2px 8px rgba(40,30,110,.14)}
@@ -74,6 +74,9 @@ const CHECK = `<span class="hp-chk"><svg viewBox="0 0 24 24" aria-hidden="true">
 let root, st = null;
 const q = (n) => root.querySelector(`[data-r="${n}"]`);
 
+const TABS = [{ k: "hero", l: "Герой" }, { k: "gls", l: "Окуляри" }, { k: "hat", l: "Капелюх" }, { k: "out", l: "Одяг" }];
+const OPTS = { gls: { list: GLASSES, key: "glasses", none: "Без окулярів" }, hat: { list: HATS, key: "hat", none: "Без капелюха" }, out: { list: CLOTHES, key: "outfit", none: "Без одягу" } };
+
 function build() {
   const style = document.createElement("style"); style.id = "hp-css"; style.textContent = CSS; document.head.appendChild(style);
   root = document.createElement("div");
@@ -87,20 +90,16 @@ function build() {
       <div class="hp-foot"><p class="hp-err" data-r="err" role="alert" hidden></p><button type="button" class="hp-ok" data-r="ok">Готово</button></div>
     </div>
     <div class="hp-main">
-      <div class="hp-tabs" role="tablist" aria-label="Що змінити">
-        <button type="button" class="hp-tab" role="tab" id="hp-tab-h" aria-controls="hp-pan-h" data-tab="hero">Герой <i>${AVATARS.length}</i></button>
-        <button type="button" class="hp-tab" role="tab" id="hp-tab-g" aria-controls="hp-pan-g" data-tab="gls">Окуляри <i>${GLASSES.length}</i></button>
-      </div>
+      <div class="hp-tabs" role="tablist" aria-label="Що змінити">${TABS.map(t => `<button type="button" class="hp-tab" role="tab" id="hp-tab-${t.k}" aria-controls="hp-pan-${t.k}" data-tab="${t.k}">${t.l}</button>`).join("")}</div>
       <div class="hp-scroll" data-r="scroll">
-        <div class="hp-grid" id="hp-pan-h" data-r="heroes" role="radiogroup" aria-labelledby="hp-tab-h"></div>
-        <div class="hp-grid" id="hp-pan-g" data-r="gls" role="radiogroup" aria-labelledby="hp-tab-g" hidden></div>
+        ${TABS.map(t => `<div class="hp-grid" id="hp-pan-${t.k}" data-r="g-${t.k}" role="radiogroup" aria-labelledby="hp-tab-${t.k}"${t.k === "hero" ? "" : " hidden"}></div>`).join("")}
       </div>
     </div>
   </div>`;
   document.body.appendChild(root);
-  q("heroes").innerHTML = AVATARS.map(a => `<button type="button" class="hp-t" role="radio" aria-checked="false" tabindex="-1" data-hero="${esc(a.id)}" aria-label="${esc(a.name)}"><span class="hp-f" style="background:${esc(a.bg)}">${avatarInner("", a.id)}${CHECK}</span><span class="hp-nm">${esc(a.name)}</span></button>`).join("");
-  q("heroes").addEventListener("click", (e) => { const b = e.target.closest("[data-hero]"); if (b) setHero(b.dataset.hero); });
-  q("gls").addEventListener("click", (e) => { const b = e.target.closest("[data-gl]"); if (b) { st.gls = b.dataset.gl; paint(); } });
+  q("g-hero").innerHTML = AVATARS.map(a => `<button type="button" class="hp-t" role="radio" aria-checked="false" tabindex="-1" data-hero="${esc(a.id)}" aria-label="${esc(a.name)}"><span class="hp-f" style="background:${esc(a.bg)}">${avatarInner("", a.id)}${CHECK}</span><span class="hp-nm">${esc(a.name)}</span></button>`).join("");
+  q("g-hero").addEventListener("click", (e) => { const b = e.target.closest("[data-hero]"); if (b) setHero(b.dataset.hero); });
+  for (const t of TABS) if (t.k !== "hero") q("g-" + t.k).addEventListener("click", (e) => { const b = e.target.closest("[data-v]"); if (b) { st[t.k] = b.dataset.v; paint(); } });
   root.querySelectorAll("[data-tab]").forEach(t => t.addEventListener("click", () => { st.tab = t.dataset.tab; paint(); }));
   q("rnd").addEventListener("click", () => setHero(randomAvatar()));
   root.querySelector(".hp-x").addEventListener("click", close);
@@ -116,7 +115,7 @@ function build() {
     }
     const cur = document.activeElement;
     if (cur?.matches("[data-tab]") && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
-      e.preventDefault(); st.tab = st.tab === "hero" ? "gls" : "hero"; paint(); root.querySelector(`[data-tab="${st.tab}"]`).focus(); return;
+      e.preventDefault(); const n = TABS.length, i = TABS.findIndex(t => t.k === st.tab); st.tab = TABS[(i + (e.key === "ArrowRight" ? 1 : n - 1)) % n].k; paint(); root.querySelector(`[data-tab="${st.tab}"]`).focus(); return;
     }
     const grid = cur?.closest(".hp-grid"); if (!grid) return;
     const bs = [...grid.querySelectorAll("[role=radio]")], i = bs.indexOf(cur); if (i < 0) return;
@@ -125,7 +124,7 @@ function build() {
     if (to === undefined) return;
     e.preventDefault();
     const nx = bs[Math.max(0, Math.min(bs.length - 1, to))]; nx.focus();
-    if (nx.dataset.hero) setHero(nx.dataset.hero); else { st.gls = nx.dataset.gl; paint(); nx.focus(); }
+    if (nx.dataset.hero) setHero(nx.dataset.hero); else { st[st.tab] = nx.dataset.v; paint(); nx.focus(); }
   });
   q("ok").addEventListener("click", save);
 }
@@ -134,21 +133,23 @@ function setHero(id) { st.hero = id; q("prev").classList.remove("pop"); void q("
 
 function paint() {
   const info = avatarInfo(st.hero), bg = info?.bg || "";
-  q("prev").innerHTML = avatarInner("", st.hero, { glasses: st.gls }); q("prev").style.background = bg;
+  q("prev").innerHTML = avatarInner("", st.hero, { glasses: st.gls, hat: st.hat, outfit: st.out }); q("prev").style.background = bg;
   q("pname").textContent = info?.name || "";
-  q("pacc").textContent = st.gls ? (GLASSES.find(g => g.id === st.gls)?.name || "") : "Без окулярів";
+  const names = [OPTS.gls, OPTS.hat, OPTS.out].map((o, i) => o.list.find(x => x.id === st[["gls", "hat", "out"][i]])?.name).filter(Boolean);
+  q("pacc").textContent = names.length ? names.join(", ") : "Без аксесуарів";
   root.querySelectorAll("[data-tab]").forEach(t => { const on = t.dataset.tab === st.tab; t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1; });
-  q("heroes").hidden = st.tab !== "hero"; q("gls").hidden = st.tab !== "gls";
-  q("heroes").querySelectorAll("[data-hero]").forEach(b => { const on = b.dataset.hero === st.hero; b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; });
-  const tile = (id, name, inner) => `<button type="button" class="hp-t" role="radio" aria-checked="${id === st.gls}" tabindex="${id === st.gls ? 0 : -1}" data-gl="${esc(id)}" aria-label="${esc(name)}"><span class="hp-f" style="background:${esc(bg)}">${inner}${CHECK}</span><span class="hp-nm">${esc(name)}</span></button>`;
-  q("gls").innerHTML = tile("", "Без окулярів", avatarInner("", st.hero)) + GLASSES.map(g => tile(g.id, g.name, avatarInner("", st.hero, { glasses: g.id }))).join("");
+  for (const t of TABS) q("g-" + t.k).hidden = st.tab !== t.k;
+  q("g-hero").querySelectorAll("[data-hero]").forEach(b => { const on = b.dataset.hero === st.hero; b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; });
+  const tile = (k, id, name, inner) => `<button type="button" class="hp-t" role="radio" aria-checked="${id === st[k]}" tabindex="${id === st[k] ? 0 : -1}" data-v="${esc(id)}" aria-label="${esc(name)}"><span class="hp-f" style="background:${esc(bg)}">${inner}${CHECK}</span><span class="hp-nm">${esc(name)}</span></button>`;
+  // перелік малюється лише для відкритої вкладки (перегляд кожного варіанта — окремий SVG)
+  if (st.tab !== "hero") { const o = OPTS[st.tab]; q("g-" + st.tab).innerHTML = tile(st.tab, "", o.none, avatarInner("", st.hero)) + o.list.map(x => tile(st.tab, x.id, x.name, avatarInner("", st.hero, { [o.key]: x.id }))).join(""); }
 }
 
 async function save() {
   const ok = q("ok"), err = q("err");
   if (ok.disabled) return;
   ok.disabled = true; err.hidden = true;
-  try { await st.onSave(st.hero, st.gls); close(); }
+  try { await st.onSave(st.hero, st.gls, st.hat, st.out); close(); }
   catch (e) { err.textContent = e?.message || "Не вдалося зберегти. Спробуйте ще раз."; err.hidden = false; }
   finally { ok.disabled = false; }
 }
@@ -160,15 +161,15 @@ function close() {
   (back && back.isConnected ? back : document.body).focus?.();
 }
 
-export function openHeroPicker({ avatar, glasses, hint, onSave }) {
+export function openHeroPicker({ avatar, glasses, hat, outfit, hint, onSave }) {
   if (!root) build();
-  st = { hero: avatar || randomAvatar(), gls: glasses || "", tab: "hero", onSave, back: document.activeElement };
+  st = { hero: avatar || randomAvatar(), gls: glasses || "", hat: hat || "", out: outfit || "", tab: "hero", onSave, back: document.activeElement };
   q("err").hidden = true;
   q("hint").textContent = hint || "Видно викладачу й усім у грі. Змінити можна, поки гра не почалась.";
   paint();
   root.setAttribute("aria-hidden", "false"); root.classList.add("open"); document.body.style.overflow = "hidden";
   // обрана плитка видна одразу: сітка з 24 героїв довша за екран телефона
-  const sc = q("scroll"), sel = q("heroes").querySelector('[aria-checked="true"]');
+  const sc = q("scroll"), sel = q("g-hero").querySelector('[aria-checked="true"]');
   requestAnimationFrame(() => { if (sel) sc.scrollTop = Math.max(0, sel.offsetTop - sc.clientHeight / 2 + sel.offsetHeight / 2); setTimeout(() => (sel || q("ok")).focus({ preventScroll: true }), 40); });
 }
 export const closeHeroPicker = close;

@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live-core.js?v=17">
+<link rel="modulepreload" href="live-core.js?v=18">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -355,8 +355,8 @@ import {
   applyTheme, serverNow, watchFields, OPT_CLASSES, OPT_LETTERS, optMark, TYPE_LABELS, isFreeform, orderList,
   optionOrderFor, fmtNum, pageUrl, trackPresence, asIndexList, fitText, fitGroup, onRefit,
   richHtml, toast, plural, typeChip, textAnswers, avatarFill, avatarInner, update,
-} from "./live-core.js?v=17";
-import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=2";
+} from "./live-core.js?v=18";
+import { openHeroPicker, closeHeroPicker } from "./hero-picker.js?v=3";
 
 const $ = (id) => document.getElementById(id);
 let timerId = null, wasOpen = false;
@@ -391,15 +391,15 @@ applyTheme(thS.val(), $("theme-overlay"), $("pattern-overlay"));
 
 const paintMe = () => { for (const id of ["my-av", "lo-av"]) { $(id).innerHTML = avatarInner(nickname, me.avatar, me); $(id).style.background = avatarFill(nickname, me.avatar); } };
 paintMe();
-// Поки гра не запущена, учень може змінити героя й окуляри (правила бази дозволяють це лише в лобі)
+// Поки гра не запущена, учень може змінити героя, окуляри, капелюх і одяг (правила бази дозволяють це лише в лобі)
 $("lo-change").addEventListener("click", () => openHeroPicker({
-  avatar: me.avatar, glasses: me.glasses,
+  avatar: me.avatar, glasses: me.glasses, hat: me.hat, outfit: me.outfit,
   hint: "Видно викладачу й усім у грі. Змінити можна, поки гра не почалась.",
-  onSave: async (avatar, glasses) => {
+  onSave: async (avatar, glasses, hat, outfit) => {
     if (st.status !== "lobby") throw new Error("Гра вже почалась — героя змінити не можна.");
-    try { await update(ref(db, `rooms/${code}/players/${pid}`), { avatar, glasses: glasses || null }); }
+    try { await update(ref(db, `rooms/${code}/players/${pid}`), { avatar, glasses: glasses || null, hat: hat || null, outfit: outfit || null }); }
     catch { throw new Error(st.status !== "lobby" ? "Гра вже почалась — героя змінити не можна." : "Не вдалося зберегти. Спробуйте ще раз."); }
-    me.avatar = avatar; me.glasses = glasses || null; paintMe();
+    me.avatar = avatar; me.glasses = glasses || null; me.hat = hat || null; me.outfit = outfit || null; paintMe();
   },
 }));
 $("my-name").textContent = nickname;

@@ -27,8 +27,8 @@
 <link rel="preconnect" href="https://quizflow-8a978-default-rtdb.europe-west1.firebasedatabase.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="modulepreload" href="live/live-core.js?v=14">
-<link rel="modulepreload" href="live/hero-picker.js?v=2">
+<link rel="modulepreload" href="live/live-core.js?v=15">
+<link rel="modulepreload" href="live/hero-picker.js?v=3">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700;800&display=swap">
@@ -124,8 +124,8 @@
 </div>
 
 <script type="module">
-import { db, ref, get, set, serverTimestamp, esc, initialsOf, avatarColor, isValidCode, safeStore, plural, avatarFill, avatarInner, avatarInfo, randomAvatar } from "./live/live-core.js?v=14";
-import { openHeroPicker } from "./live/hero-picker.js?v=2";
+import { db, ref, get, set, serverTimestamp, esc, initialsOf, avatarColor, isValidCode, safeStore, plural, avatarFill, avatarInner, avatarInfo, randomAvatar } from "./live/live-core.js?v=15";
+import { openHeroPicker } from "./live/hero-picker.js?v=3";
 
 const $ = (id) => document.getElementById(id);
 const urlCode = (new URLSearchParams(location.search).get("code") || "").replace(/\D/g, "");
@@ -179,10 +179,10 @@ async function checkCode(c) {
 // ─── Крок 2: нік ───────────────────────────────────────────────────────
 const nickInp = $("inp-nick");
 const normNick = (s) => s.replace(/\s+/g, " ").trim();
-let hero = "", gls = "";   // обране: діє лише в цій грі, на пристрої не запам'ятовується
+let hero = "", gls = "", hat = "", out = "";   // обране: діє лише в цій грі, на пристрої не запам'ятовується
 function paintAvatar() {
   const n = normNick(nickInp.value);
-  $("nick-av").innerHTML = hero ? avatarInner(n, hero, { glasses: gls }) : (n ? initialsOf(n) : "?");
+  $("nick-av").innerHTML = hero ? avatarInner(n, hero, { glasses: gls, hat, outfit: out }) : (n ? initialsOf(n) : "?");
   $("nick-av").style.background = hero ? avatarFill(n, hero) : (n ? avatarColor(n) : "");
   $("nick-count").textContent = `${nickInp.value.length} / 24`;
   nickInp.classList.remove("bad"); show($("err-nick"), "");
@@ -194,8 +194,8 @@ const hname = () => avatarInfo(hero)?.name || "";
 function paintHero() { $("hero-name").textContent = hname(); paintAvatar(); }
 function pickHero(id) { hero = id; paintHero(); }
 const openSheet = () => openHeroPicker({
-  avatar: hero, glasses: gls, hint: "Видно викладачу й усім у грі. Лише на цю гру.",
-  onSave: (a, g) => { hero = a; gls = g || ""; paintHero(); },
+  avatar: hero, glasses: gls, hat, outfit: out, hint: "Видно викладачу й усім у грі. Лише на цю гру.",
+  onSave: (a, g, h, o) => { hero = a; gls = g || ""; hat = h || ""; out = o || ""; paintHero(); },
 });
 $("av-open").addEventListener("click", openSheet); $("av-open2").addEventListener("click", openSheet);
 
@@ -247,7 +247,7 @@ $("step-nick").addEventListener("submit", async (e) => {
       return fail(nickInp, $("err-nick"), "Це ім'я вже зайняте — додайте прізвище або першу літеру.");
     }
     const pid = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-    await set(ref(db, `rooms/${code}/players/${pid}`), { nickname: nick, joinedAt: serverTimestamp(), active: true, online: true, ...(hero ? { avatar: hero } : {}), ...(hero && gls ? { glasses: gls } : {}) });
+    await set(ref(db, `rooms/${code}/players/${pid}`), { nickname: nick, joinedAt: serverTimestamp(), active: true, online: true, ...(hero ? { avatar: hero } : {}), ...(hero && gls ? { glasses: gls } : {}), ...(hero && hat ? { hat } : {}), ...(hero && out ? { outfit: out } : {}) });
     safeStore.set(storeKey(code), { pid });
     safeStore.set("qf-live-nick", nick);
     goPlay(pid, nick);
