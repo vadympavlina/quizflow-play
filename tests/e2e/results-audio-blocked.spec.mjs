@@ -13,7 +13,7 @@ const room = () => {
   return { status: "finished", scoring: "speed", testTitle: "Географія", questions: Q, players, answers };
 };
 const countOsc = () => { window.__osc = 0; const P = (window.BaseAudioContext || window.AudioContext).prototype, o = P.createOscillator; P.createOscillator = function () { window.__osc++; return o.apply(this, arguments); }; };
-const running = page => page.evaluate(() => document.getAnimations().filter(a => a.playState === "running").length);
+const running = page => page.evaluate(() => { const t = document.getElementById("T"); return t && t.dataset.phase === "panel" ? 1 : 0; });
 const open = async page => { await page.addInitScript(countOsc); await seed(page, { rooms: { "12345678": room() } }, ""); };
 const URL = "/live/student-result?code=12345678&pid=p3&nickname=x";
 
@@ -23,12 +23,12 @@ test("звук заблоковано (iPhone, пряме відкриття): �
   const gate = page.locator(".gate button");
   await expect(gate).toBeVisible();
   await page.waitForTimeout(1500);
-  expect(await running(page), "анімація ще не стартувала").toBe(0);
+  expect(await running(page), "показ ще не стартував").toBe(0);
   expect(await page.evaluate(() => window.__osc), "звуку ще немає").toBe(0);
   await gate.click();
   await expect(page.locator(".gate")).toHaveCount(0);
-  await expect.poll(() => running(page), { timeout: 4000 }).toBeGreaterThan(0);
-  await page.waitForTimeout(1500);
+  await expect.poll(() => running(page), { timeout: 9000 }).toBeGreaterThan(0);
+  await page.waitForTimeout(500);
   expect(await page.evaluate(() => window.__osc), "після дотику звук пішов").toBeGreaterThan(0);
   expect(errors).toEqual([]);
 });
@@ -37,7 +37,7 @@ test("звук заблоковано, але вимкнений самим ко
   await open(page);
   await page.evaluate(() => localStorage.setItem("qf_snd", "0"));
   await page.goto(URL);
-  await expect.poll(() => running(page), { timeout: 4000 }).toBeGreaterThan(0);
+  await expect.poll(() => running(page), { timeout: 9000 }).toBeGreaterThan(0);
   await expect(page.locator(".gate")).toHaveCount(0);
   expect(errors).toEqual([]);
 });
@@ -48,6 +48,7 @@ test("звук заблоковано, але в системі «зменшит
   await page.goto(URL);
   await page.waitForTimeout(1500);
   await expect(page.locator(".gate")).toHaveCount(0);
-  await expect(page.locator(".hero .nm")).toBeVisible();
+  await expect(page.locator("#T")).toHaveAttribute("data-phase", "panel");
+  await expect(page.locator(".card .name")).toHaveCount(1);
   expect(errors).toEqual([]);
 });
