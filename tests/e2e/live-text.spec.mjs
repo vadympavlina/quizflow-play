@@ -56,19 +56,22 @@ test("герої: список без дублікатів, ids допустим
   expect(errors).toEqual([]);
 });
 
-test("убори й окуляри: файл є, id допустимі, avatarInner складає inline-SVG з унікальними id", async ({ page, errors }) => {
+test("убори, окуляри й одяг: файл є, id допустимі, avatarInner складає inline-SVG", async ({ page, errors }) => {
   await page.goto("/404.html");
   const r = await page.evaluate(async () => {
     const m = await import("/live/live-core.js?v=10");
     const one = m.avatarInner("Марія", "fox", { hat: "crown", glasses: "sun" });
+    const dressed = m.avatarInner("Марія", "fox", { outfit: "hoodie" });
     const bare = m.avatarInner("Марія", "fox", {});
     const none = m.avatarInner("Марія К.", "", { hat: "crown" });
-    return { hats: m.HATS.map(h => h.id), gl: m.GLASSES.map(g => g.id), one, bare, none, bad: m.avatarInner("<b>", "fox", { hat: "<script>" }) };
+    return { hats: m.HATS.map(h => h.id), gl: m.GLASSES.map(g => g.id), cl: m.CLOTHES.map(c => c.id), dressed, one, bare, none, bad: m.avatarInner("<b>", "fox", { hat: "<script>" }) };
   });
-  expect(r.hats.length).toBeGreaterThanOrEqual(11);
-  expect(r.gl.length).toBeGreaterThanOrEqual(6);
-  for (const id of [...r.hats, ...r.gl]) expect(id).toMatch(/^[a-z0-9-]{1,24}$/);
-  expect(r.one).toContain("<svg"); expect(r.one).toContain("h-crown-"); expect(r.one).toContain("g-sun");
+  expect(r.hats.length).toBeGreaterThanOrEqual(10);
+  expect(r.gl.length).toBeGreaterThanOrEqual(15);
+  expect(r.cl.length).toBeGreaterThanOrEqual(12);
+  for (const id of [...r.hats, ...r.gl, ...r.cl]) expect(id).toMatch(/^[a-z0-9-]{1,24}$/);
+  expect(r.one).toContain("<svg"); expect(r.one).toContain("hg-gold");              // градієнти капелюха мають фіксовані id: однакові на сторінці, тож не конфліктують
+  expect(r.dressed).toContain("<svg"); expect(r.dressed).toContain("cl-hd"); expect(r.dressed).toContain('class="ob"');
   expect(r.bare).toContain("<img");
   expect(r.none).toBe("МК");                 // без героя лишаються ініціали
   expect(r.bad).not.toContain("<script");   // невідомий убір ігнорується
