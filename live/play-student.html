@@ -200,7 +200,8 @@
   .ans.single-only.correct-ans .check,.ans.single-only.my-wrong .check{display:grid}
 
   .text-answer-wrap{margin:26px auto 0;max-width:640px;width:100%}
-  .text-input{width:100%;padding:17px 20px;border-radius:16px;border:2px solid #C4B5FD;background:#fff;font:700 20px Manrope,sans-serif;color:#0F1844;outline:none;transition:border-color .15s,box-shadow .15s}
+  .text-input{display:block;resize:none;overflow:hidden;line-height:1.35;min-height:58px;width:100%;padding:17px 20px;border-radius:16px;border:2px solid #C4B5FD;background:#fff;font:700 20px Manrope,sans-serif;color:#0F1844;outline:none;transition:border-color .15s,box-shadow .15s}
+  .text-input.long{min-height:132px;max-height:42vh;overflow-y:auto}
   .text-input:focus{border-color:#FDE047;box-shadow:0 0 0 4px rgba(253,224,71,.35)}
   .text-input::placeholder{color:#6B7593}
   .text-input:disabled{background:#E3E7F5;color:#3A4268}
@@ -269,6 +270,35 @@
 
   button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #FDE047;outline-offset:3px}
   .ans:focus-visible{outline-offset:-7px}
+  /* Комп'ютер і ноутбук: усе крупніше за висотою вікна, щоб екран учня не виглядав порожнім */
+  @media (min-width:1000px) and (min-height:600px){
+    .question-wrap{max-width:min(1500px,94vw)}
+    .timer{width:clamp(72px,11vh,112px);height:clamp(72px,11vh,112px)}.timer span{font-size:clamp(28px,4.6vh,44px)}
+    .tchip{font-size:clamp(14.5px,2.1vh,19px);padding:9px 18px 9px 13px}
+    .question-meta .tm{font-size:clamp(11.5px,1.7vh,14px)}
+    .question-text{font-size:clamp(30px,5.8vh,62px);max-width:min(1250px,90vw)}
+    .answers{max-width:min(1400px,94vw);gap:14px;grid-auto-rows:minmax(min-content,clamp(104px,17vh,190px))}
+    .answers > .ans:last-child:nth-child(odd){width:calc(50% - 7px)}
+    .ans{font-size:clamp(20px,3.7vh,38px);padding:10px 26px;gap:16px;border-radius:20px}
+    .ans .letter{width:clamp(34px,5vh,52px);height:clamp(34px,5vh,52px);font-size:clamp(17px,2.6vh,25px);border-radius:14px}
+    .ans .check{width:clamp(26px,3.8vh,38px);height:clamp(26px,3.8vh,38px)}
+    .text-answer-wrap{max-width:min(980px,86vw)}
+    .text-input{font-size:clamp(20px,3.2vh,30px);padding:clamp(17px,2.4vh,26px) 26px;border-radius:20px;min-height:clamp(58px,9vh,92px)}
+    .text-input.long{min-height:clamp(132px,22vh,240px)}
+    .primary-btn{font-size:clamp(16px,2.6vh,22px);padding:clamp(16px,2.4vh,24px);border-radius:18px}
+    .feedback{max-width:min(760px,80vw);padding:clamp(16px,2.4vh,26px) 26px}.feedback .big{font-size:clamp(26px,4.4vh,42px)}.feedback .pts{font-size:clamp(22px,3.6vh,34px)}.feedback .sub{font-size:clamp(14px,2.1vh,18px)}
+    .feedback .vchip{font-size:clamp(17px,2.6vh,24px)}
+    .hint{font-size:clamp(12.5px,1.9vh,15px)}
+    .answers.ord{max-width:min(920px,90vw)}
+    .ord-card{min-height:clamp(58px,9.5vh,88px);font-size:clamp(16px,2.9vh,26px);gap:14px}
+    .ord-card .num{width:clamp(28px,4vh,40px);height:clamp(28px,4vh,40px);font-size:clamp(13px,2vh,18px)}
+    .ord-card .mv button{width:clamp(40px,5.6vh,54px);height:clamp(40px,5.6vh,54px)}
+    .mt-row{min-height:clamp(58px,9.5vh,88px);font-size:clamp(16px,2.9vh,26px);gap:14px}
+    .mt-row .num{width:clamp(28px,4vh,40px);height:clamp(28px,4vh,40px);font-size:clamp(13px,2vh,18px)}
+    .mt-slot{min-width:clamp(128px,22vh,220px);min-height:clamp(42px,6.4vh,62px);font-size:clamp(13px,2.2vh,19px)}
+    .mt-chip{font-size:clamp(15px,2.6vh,22px);padding:clamp(10px,1.6vh,16px) clamp(16px,2.6vh,26px);min-height:clamp(42px,6.4vh,62px)}
+    .mt-bank .cap{font-size:clamp(12px,1.8vh,15px)}
+  }
   @media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important} }
   @media (max-width: 640px){
     .answers{grid-template-columns:1fr !important;gap:8px;margin-top:10px;grid-auto-rows:minmax(min-content,84px)}
@@ -356,7 +386,7 @@
 
   <div class="answers" id="answers-grid" hidden></div>
   <form class="text-answer-wrap" id="text-form" hidden autocomplete="off">
-    <input class="text-input" id="text-inp" placeholder="Введіть відповідь…" enterkeyhint="send" maxlength="200">
+    <textarea class="text-input" id="text-inp" rows="1" placeholder="Введіть відповідь…" enterkeyhint="send" maxlength="200"></textarea>
     <button class="primary-btn" id="text-submit" type="submit">Відповісти</button>
     <div class="draft-note" id="draft-note" hidden></div>
   </form>
@@ -504,10 +534,11 @@ function renderQuestion(qi) {
     clearTimeout(draftTimer); draftSent = ""; $("draft-note").hidden = true;
     inp.inputMode = qq.type === "number" ? "decimal" : "text";
     inp.maxLength = qq.type === "long" ? 500 : 200;
+    inp.classList.toggle("long", qq.type === "long"); inp.rows = qq.type === "long" ? 4 : 1; inp.style.height = "";
     inp.placeholder = qq.type === "number" ? "Введіть число…" : qq.type === "long" ? "Напишіть відповідь…" : "Введіть відповідь…";
     $("text-submit").disabled = false;
     $("text-submit").textContent = "Відповісти";
-    $("q-hint").innerHTML = qq.type === "long" ? `Напишіть відповідь і натисніть <b>Відповісти</b>. Її зарахує викладач` : `Введіть відповідь і натисніть <b>Відповісти</b>`;
+    $("q-hint").innerHTML = qq.type === "long" ? `Напишіть відповідь і натисніть <b>Відповісти</b>. Її зарахує викладач<span class="kb"> · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> — відправити</span>` : `Введіть відповідь і натисніть <b>Відповісти</b>`;
     if (matchMedia("(hover:hover)").matches) setTimeout(() => inp.focus(), 50);
   } else {
     const opts = qq.options || [];
@@ -916,7 +947,14 @@ function saveDraft(now = false) {
   };
   if (now) run(); else draftTimer = setTimeout(run, 350);
 }
-$("text-inp").addEventListener("input", () => saveDraft());
+$("text-inp").addEventListener("input", () => { saveDraft(); const t = $("text-inp"); if (!t.classList.contains("long")) return; t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight + 4, innerHeight * .42) + "px"; });
+// Enter відправляє коротку відповідь (як було в однорядковому полі); у розгорнутій Enter — новий рядок, відправка Ctrl/Cmd+Enter
+$("text-inp").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || e.shiftKey || e.isComposing) return;
+  const long = $("text-inp").classList.contains("long");
+  if (long && !(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault(); $("text-form").requestSubmit();
+});
 
 $("answers-grid").addEventListener("click", (e) => {
   const b = e.target.closest(".ans"); if (!b || b.disabled || q()?.type === "ordering") return;
