@@ -143,7 +143,8 @@
   .question-wrap.ord-mode{flex:1 0 auto;min-height:auto;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
   .ord-mode > .question-meta{order:0}.ord-mode > .question-text{order:1}.ord-mode > .feedback{order:2}.ord-mode > .answers{order:3}.ord-mode > .hint{order:4}
   .ord-card{display:flex;align-items:center;gap:10px;padding:9px 8px 9px 4px;min-height:58px;border-radius:16px;background:#F8F9FE;color:#14195A;font-weight:800;font-size:16px;line-height:1.25;box-shadow:0 8px 22px rgba(0,0,0,.22),inset 0 1px 0 #fff;position:relative;user-select:none;-webkit-user-select:none}
-  .ord-card .grip{width:30px;align-self:stretch;min-height:40px;display:grid;place-items:center;color:#8E98C4;cursor:grab;touch-action:none;flex:0 0 auto;border-radius:10px}
+  .ord-card{cursor:grab;touch-action:pan-y;-webkit-touch-callout:none}
+  .ord-card .grip{width:44px;align-self:stretch;min-height:44px;display:grid;place-items:center;color:#8E98C4;cursor:grab;touch-action:none;flex:0 0 auto;border-radius:10px}
   .ord-card .grip:hover{color:#4B55A0}
   .ord-card .num{width:28px;height:28px;border-radius:9px;background:#E4E8FA;color:#3730A3;display:grid;place-items:center;font:800 13px "Geist Mono",monospace;flex:0 0 auto}
   .ord-card .txt{flex:1;min-width:0;overflow-wrap:anywhere;hyphens:auto}
@@ -154,7 +155,9 @@
   .ord-card .mv button:focus-visible,.ord-card .grip:focus-visible{outline:3px solid #A78BFA;outline-offset:1px}
   .ord-card .res{display:none;align-items:center;gap:8px;flex:0 0 auto;padding-right:6px}
   .ord-card .res small{font:700 11.5px Manrope,sans-serif;color:#B91C1C;white-space:nowrap}
-  .ord-card.drag{z-index:6;cursor:grabbing;box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 0 3px #A78BFA;transition:none}
+  .ord-card.drag{z-index:6;cursor:grabbing;box-shadow:0 22px 46px rgba(0,0,0,.45),0 0 0 3px #A78BFA;transition:none}
+  .ord-card.hold{box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 0 3px rgba(167,139,250,.7)}
+  .answers.ord.lock .ord-card,.answers.ord.rev .ord-card{cursor:default}
   .ord-card.drag .grip{cursor:grabbing;color:#6D28D9}
   .answers.ord.lock .ord-card .grip{opacity:.35;cursor:default}
   .answers.ord.lock .ord-card .mv{opacity:.4}
@@ -173,6 +176,10 @@
   .mt-row .txt{flex:1;min-width:0;overflow-wrap:anywhere;hyphens:auto}
   .mt-row button.txt{border:0;background:none;padding:6px 0;color:inherit;font:inherit;text-align:left;cursor:pointer}
   .mt-slot{flex:0 0 auto;min-width:128px;max-width:50%;min-height:42px;padding:0 12px;border-radius:12px;border:2px dashed #B8C0E6;background:transparent;color:#7A84B5;font:700 13px Manrope,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer}
+  .mt-row.drop{box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 0 3px #34D399}
+  .mt-row.drop .mt-slot{border-color:#10B981;background:#ECFDF5;color:#047857}
+  .mt-src{opacity:.35}
+  .mt-ghost{position:fixed;z-index:9999;pointer-events:none;margin:0;box-shadow:0 18px 40px rgba(0,0,0,.45);transform:translate(-50%,-50%) scale(1.06);max-width:70vw}
   .mt-row.sel{box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 0 3px #A78BFA}
   .mt-row.sel .mt-slot{border-color:#7C3AED;color:#6D28D9;background:#F3EEFF}
   .mt-row.fill .mt-slot{border:2px solid #C7CCF0;background:#fff;color:#14195A;font:800 15px Manrope,sans-serif}
@@ -181,6 +188,7 @@
   .mt-row button:focus-visible,.mt-chip:focus-visible{outline:3px solid #A78BFA;outline-offset:2px}
   .mt-bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;padding:12px;border-radius:16px;background:rgba(10,14,50,.45);border:1px solid rgba(255,255,255,.14)}
   .mt-bank .cap{width:100%;font:700 12px Manrope,sans-serif;color:#B8C0E6}
+  .mt-chip,.mt-slot.has{touch-action:none;cursor:grab;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
   .mt-chip{padding:10px 16px;border-radius:999px;background:#fff;color:#14195A;font:800 15px Manrope,sans-serif;border:0;box-shadow:0 4px 12px rgba(0,0,0,.25);min-height:42px;cursor:pointer}
   .mt-chip:disabled{opacity:.22;box-shadow:none;cursor:default}
   .mt-row.ok{background:#ECFDF5;box-shadow:0 8px 22px rgba(0,0,0,.2),inset 0 0 0 2.5px #10B981}.mt-row.ok .num{background:#10B981;color:#fff}
@@ -474,7 +482,7 @@ function renderQuestion(qi) {
   if (mt) {
     mtPick = (qq.lefts || []).map(() => null); mtSel = 0; mtSig = "";
     const g = $("answers-grid"); g.classList.add("ord"); g.style.gridTemplateColumns = ""; g.innerHTML = "";
-    $("q-hint").innerHTML = `Торкніться пункту, потім варіанта відповіді<span class="kb"> · клавіші <kbd>1</kbd>–<kbd>${(qq.lefts || []).length}</kbd> обирають пункт</span>. Торкніться заповненої відповіді, щоб прибрати її`;
+    $("q-hint").innerHTML = `Перетягніть варіант на пункт (або торкніться пункту, потім варіанта)<span class="kb"> · клавіші <kbd>1</kbd>–<kbd>${(qq.lefts || []).length}</kbd> обирають пункт</span>. Торкніться заповненої відповіді, щоб прибрати її`;
   } else if (ord) {
     // Пункти приходять уже перемішаними (правильний порядок у ключі викладача) — усі бачать однаковий стартовий порядок
     const opts = qq.options || [];
@@ -488,7 +496,7 @@ function renderQuestion(qi) {
         <span class="res"></span>
       </div>`).join("");
     syncOrd();
-    $("q-hint").innerHTML = `Перетягніть картки за ручку зліва або скористайтесь стрілками, тоді натисніть <b>Підтвердити порядок</b>`;
+    $("q-hint").innerHTML = `Перетягніть картки (можна за будь-яке місце; на телефоні потримайте картку) або скористайтесь стрілками, тоді натисніть <b>Підтвердити порядок</b>`;
   } else if (free) {
     $("answers-grid").innerHTML = "";
     const inp = $("text-inp");
@@ -724,15 +732,28 @@ $("answers-grid").addEventListener("click", (e) => {
   const b = e.target.closest(".ord-card .mv button"); if (!b) return;
   e.stopPropagation(); moveOrd(b.closest(".ord-card"), +b.dataset.d);
 }, true);
-$("answers-grid").addEventListener("pointerdown", (e) => {
-  const grip = e.target.closest(".grip"); if (!grip || !canAnswer() || q()?.type !== "ordering") return;
-  const card = grip.closest(".ord-card");
-  e.preventDefault();
-  try { grip.setPointerCapture(e.pointerId); } catch {}
+// Перетягування картки: мишею — за будь-яке місце картки, пальцем — за ручку зліва або після довгого натискання на картці
+// (щоб сторінка далі гортілась, коли палець просто проводять по картках).
+let holdT = null, hold = null;
+const HOLD_MS = 230, HOLD_SLOP = 9;
+function startDrag(card, e) {
+  try { card.setPointerCapture(e.pointerId); } catch {}
   drag = { card, id: e.pointerId, y0: e.clientY, top0: card.offsetTop };
-  card.classList.add("drag"); card.style.transition = "none";
+  card.classList.remove("hold"); card.classList.add("drag"); card.style.transition = "none";
+  navigator.vibrate?.(12);
+}
+$("answers-grid").addEventListener("pointerdown", (e) => {
+  if (!canAnswer() || q()?.type !== "ordering" || e.target.closest(".mv button")) return;
+  const card = e.target.closest(".ord-card"); if (!card || drag) return;
+  if (e.pointerType === "mouse") { if (e.button !== 0) return; e.preventDefault(); startDrag(card, e); return; }
+  if (e.target.closest(".grip")) { e.preventDefault(); startDrag(card, e); return; }
+  hold = { card, id: e.pointerId, x: e.clientX, y: e.clientY, e0: e };
+  holdT = setTimeout(() => { if (!hold) return; card.classList.add("hold"); startDrag(card, { pointerId: hold.id, clientY: hold.y }); hold = null; }, HOLD_MS);
 });
+// Після довгого натискання палець тягне картку, а не сторінку
+document.addEventListener("touchmove", (e) => { if (drag && e.cancelable) e.preventDefault(); }, { passive: false });
 $("answers-grid").addEventListener("pointermove", (e) => {
+  if (hold && e.pointerId === hold.id && Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > HOLD_SLOP) { clearTimeout(holdT); hold = null; }
   if (!drag || e.pointerId !== drag.id) return;
   const { card } = drag, dy = e.clientY - drag.y0;
   const center = drag.top0 + dy + card.offsetHeight / 2;
@@ -742,9 +763,11 @@ $("answers-grid").addEventListener("pointermove", (e) => {
     else if (prev && center < prev.offsetTop + prev.offsetHeight / 2) flip(() => card.parentNode.insertBefore(card, prev), card);
     else break;
   }
-  card.style.transform = `translateY(${dy - (card.offsetTop - drag.top0)}px)`;
+  card.style.transform = `translateY(${dy - (card.offsetTop - drag.top0)}px) scale(1.025)`;
+  syncOrd();   // номери позицій оновлюються просто під час перетягування
 });
 const endDrag = (e) => {
+  if (hold && e.pointerId === hold.id) { clearTimeout(holdT); hold = null; }
   if (!drag || e.pointerId !== drag.id) return;
   const { card } = drag; drag = null;
   card.classList.remove("drag");
@@ -785,8 +808,8 @@ function paintMatching(rev, locked) {
     html = lefts.map((l, i) => {
       const pick = mtPick[i], sel = !locked && mtSel === i;
       const slot = pick != null
-        ? `<button type="button" class="mt-slot" data-mt="s${i}" data-r="${i}"${dis} aria-label="Прибрати відповідь для пункту ${i + 1}"><span>${esc(opts[pick] ?? "")}</span><span class="x">${MT_X}</span></button>`
-        : `<button type="button" class="mt-slot" data-mt="s${i}" data-r="${i}"${dis} aria-label="Обрати відповідь для пункту ${i + 1}">${sel ? "Оберіть відповідь" : "Торкніться"}</button>`;
+        ? `<button type="button" class="mt-slot has" data-mt="s${i}" data-r="${i}"${dis} aria-label="Прибрати відповідь для пункту ${i + 1}"><span>${esc(opts[pick] ?? "")}</span><span class="x">${MT_X}</span></button>`
+        : `<button type="button" class="mt-slot" data-mt="s${i}" data-r="${i}"${dis} aria-label="Обрати відповідь для пункту ${i + 1}">${sel ? "Оберіть відповідь" : "Перетягніть сюди"}</button>`;
       return `<div class="mt-row${sel ? " sel" : ""}${pick != null ? " fill" : ""}"><span class="num">${i + 1}</span><button type="button" class="txt" data-mt="t${i}" data-r="${i}"${dis}>${esc(l)}</button>${slot}</div>`;
     }).join("");
     if (!answered()) html += `<div class="mt-bank"><span class="cap">Варіанти</span>${opts.map((o, k) => `<button type="button" class="mt-chip" data-mt="c${k}" data-o="${k}"${locked || used.has(k) ? " disabled" : ""}>${esc(o)}</button>`).join("")}</div>`;
@@ -794,8 +817,56 @@ function paintMatching(rev, locked) {
   g.innerHTML = html;
   if (focusKey) g.querySelector(`[data-mt="${focusKey}"]:not(:disabled)`)?.focus({ preventScroll: true });
 }
+// Перетягування в зіставленні: варіант із «банку» (або з вибраного пункту) — на інший пункт. Короткий дотик працює як раніше.
+let mtDrag = null, mtJustDragged = false;
+const MT_SLOP = 6;
+function mtRowAt(x, y) {
+  const el = document.elementFromPoint(x, y)?.closest?.(".mt-row"); return el && el.closest("#answers-grid") ? el : null;
+}
+$("answers-grid").addEventListener("pointerdown", (e) => {
+  if (q()?.type !== "matching" || !canAnswer() || mtDrag || (e.pointerType === "mouse" && e.button !== 0)) return;
+  const chip = e.target.closest(".mt-chip:not(:disabled)"), slot = e.target.closest(".mt-slot.has:not(:disabled)");
+  const src = chip || slot; if (!src) return;
+  const val = chip ? +chip.dataset.o : mtPick[+slot.dataset.r];
+  if (!Number.isInteger(val)) return;
+  mtDrag = { src, id: e.pointerId, x0: e.clientX, y0: e.clientY, val, from: chip ? -1 : +slot.dataset.r, on: false, ghost: null, over: null };
+});
+$("answers-grid").addEventListener("pointermove", (e) => {
+  const d = mtDrag; if (!d || e.pointerId !== d.id) return;
+  if (!d.on) {
+    if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < MT_SLOP) return;
+    d.on = true;
+    try { d.src.setPointerCapture(e.pointerId); } catch {}
+    const g = d.src.cloneNode(true); g.classList.add("mt-ghost"); g.removeAttribute("data-mt"); g.style.width = d.src.offsetWidth + "px";
+    document.body.appendChild(g); d.ghost = g; d.src.classList.add("mt-src"); navigator.vibrate?.(10);
+  }
+  e.preventDefault();
+  d.ghost.style.left = e.clientX + "px"; d.ghost.style.top = e.clientY + "px";
+  const row = mtRowAt(e.clientX, e.clientY);
+  if (row !== d.over) { d.over?.classList.remove("drop"); d.over = row; row?.classList.add("drop"); }
+});
+const mtEnd = (e, cancel) => {
+  const d = mtDrag; if (!d || e.pointerId !== d.id) return;
+  mtDrag = null;
+  if (!d.on) return;
+  d.ghost.remove(); d.src.classList.remove("mt-src"); d.over?.classList.remove("drop");
+  mtJustDragged = true; setTimeout(() => { mtJustDragged = false; }, 15);   // браузер після перетягування шле click — його гасимо
+  if (cancel) return;
+  const rows = [...$("answers-grid").querySelectorAll(".mt-row")], r = d.over ? rows.indexOf(d.over) : -1;
+  if (r >= 0 && r !== d.from) {
+    if (d.from >= 0) mtPick[d.from] = mtPick[r];   // обмін місцями з пунктом, на який кинули
+    mtPick[r] = d.val; mtSel = r;
+    const nx = mtNextEmpty(r + 1); if (nx >= 0) mtSel = nx;
+  } else if (r < 0 && d.from >= 0) { mtPick[d.from] = null; mtSel = d.from; }   // викинули за межі пунктів — повертаємо в банк
+  else return;
+  navigator.vibrate?.(8);
+  paint();
+};
+$("answers-grid").addEventListener("pointerup", (e) => mtEnd(e, false));
+$("answers-grid").addEventListener("pointercancel", (e) => mtEnd(e, true));
 $("answers-grid").addEventListener("click", (e) => {
   if (q()?.type !== "matching" || !canAnswer()) return;
+  if (mtJustDragged) { e.stopPropagation(); return; }
   const slot = e.target.closest(".mt-slot"), name = e.target.closest("button.txt"), chip = e.target.closest(".mt-chip");
   if (slot) { const i = +slot.dataset.r; mtPick[i] = null; mtSel = i; }
   else if (name) mtSel = +name.dataset.r;
