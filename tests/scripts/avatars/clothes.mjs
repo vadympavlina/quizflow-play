@@ -31,22 +31,26 @@ export const CLOTHES = [
 <path d="${BODY}" ${F('sw')}/>${[150, 166, 182].map((y) => `<path d="M20 ${y + 10} Q100 ${y - 22} 180 ${y + 10}" fill="none" stroke="#FFF1E4" stroke-opacity=".75" stroke-width="7"/>`).join('')}`,
     front: `<path d="M66 116 Q100 136 134 116 L136 134 Q100 156 64 134Z" ${F('sw2')}/>${[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `<path d="M${70 + i * 8.6} ${123 + Math.sin(i / 7 * Math.PI) * 9} l.8 12" stroke="#7A3314" stroke-opacity=".3" stroke-width="2.4" stroke-linecap="round"/>`).join('')}${gl('M70 122 Q100 140 130 122', 3, .4)}${gl(SHOULD, 4, .28)}` },
   { id: 'lab', name: 'Халат вченого', fit: { ks: .82, chin: 128 },
-    back: `<defs>${lg('lc', '#FFFFFF', '#F2F6FC', '#C8D3E8')}${lg('ls', '#E3F0FF', '#BCD6F4', '#8FB0DE')}</defs>
-<path d="${BODY}" ${F('lc')}/><path d="M76 112 L100 156 L124 112Z" ${F('ls')}/>`,
-    front: `<path d="M76 110 L52 140 L96 160Z" ${F('lc')}/><path d="M124 110 L148 140 L104 160Z" ${F('lc')}/>${st('M52 140 L96 160 M148 140 L104 160', '#8FA0C4', .6, 2)}
-<path d="M100 164 L100 206" stroke="#8FA0C4" stroke-opacity=".55" stroke-width="2.4"/><rect x="112" y="150" width="26" height="20" rx="4" fill="#E7EDF8"/>${st('M112 156 L138 156', '#8FA0C4', .6, 2)}<rect x="119" y="141" width="4" height="17" rx="2" fill="#3A7BE8"/><rect x="125" y="143" width="4" height="15" rx="2" fill="#E5343C"/>${gl(SHOULD, 4, .5)}` },
+    back: `<defs>${lg('lc', '#FFFFFF', '#EEF3FB', '#B9C7E2')}${lg('ls', '#E3F0FF', '#BCD6F4', '#8FB0DE')}</defs>
+<path d="${BODY}" ${F('lc')}/><path d="M76 112 L100 158 L124 112Z" ${F('ls')}/>`,
+    front: `${mir(`<path d="M76 110 L54 138 L94 164Z" ${F('lc')}/>`)}${st('M54 138 L94 164 M146 138 L106 164', '#8FA0C4', .6, 2)}
+<path d="M100 166 L100 206" stroke="#8FA0C4" stroke-opacity=".55" stroke-width="2.4"/>
+<path d="M66 118 Q66 156 100 166 Q134 156 134 118" fill="none" stroke="#3C4766" stroke-width="3.6" stroke-linecap="round"/><circle cx="100" cy="167" r="6.4" fill="#C9D3EA" stroke="#3C4766" stroke-width="2.6"/><circle cx="98" cy="165" r="1.8" fill="#fff" fill-opacity=".9"/>
+<rect x="116" y="150" width="24" height="18" rx="3.6" fill="#E7EDF8" stroke="#B7C4E0" stroke-width="1.4"/><rect x="123" y="142" width="3.6" height="14" rx="1.8" fill="#3A7BE8"/><rect x="129" y="144" width="3.6" height="12" rx="1.8" fill="#E5343C"/>${gl(SHOULD, 4, .5)}` },
   { id: 'astro', name: 'Скафандр', fit: { ks: .8, chin: 126 },
-    back: `<defs>${lg('as', '#FFFFFF', '#EEF2FA', '#BAC6DE')}${lg('ar', '#9FB4D8', '#6C84B4', '#455C8C')}${lg('ao', '#FFB36B', '#FF7A33', '#D14A12')}</defs>
-<path d="${BODY}" ${F('as')}/>`,
-    front: `<path d="M58 124 Q100 158 142 124" fill="none" stroke="url(#cl-ar)" stroke-width="15" stroke-linecap="round"/>${gl('M62 123 Q100 152 138 123', 3.4, .5)}${st('M60 130 Q100 164 140 130', '#2F4470', .3, 2.4)}
-<rect x="50" y="143" width="26" height="13" rx="3.2" ${F('ao')}/><path d="M63 145.4 l1.5 3.3 3.3 .5 -2.4 2.3 .6 3.3 -3-1.6 -3 1.6 .6-3.3 -2.4-2.3 3.3-.5z" fill="#fff" fill-opacity=".92"/>
-<rect x="110" y="146" width="34" height="17" rx="4.5" fill="#C9D3EA"/><circle cx="119" cy="154.5" r="3.3" fill="#E5343C"/><circle cx="127" cy="154.5" r="3.3" fill="#3A7BE8"/><circle cx="135" cy="154.5" r="3.3" fill="#3FC47A"/>${gl(SHOULD, 4, .6)}` },
+    back: `<defs>${lg('as', '#FFFFFF', '#EEF2FA', '#BAC6DE')}${lg('ar', '#B9CBEA', '#7F97C6', '#4F6798')}${lg('ao', '#FFB36B', '#FF7A33', '#D14A12')}</defs>
+<path d="${BODY}" ${F('as')}/>
+<ellipse cx="100" cy="126" rx="49" ry="17" fill="none" stroke="url(#cl-ar)" stroke-width="13"/><ellipse cx="100" cy="126" rx="49" ry="17" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3" transform="translate(0 -3)"/>`,
+    front: `<path d="M100 146 L100 176" stroke="#8C9AB8" stroke-width="2.6"/><rect x="95.4" y="146" width="9.2" height="11" rx="2.6" fill="#FF7A33"/>
+<rect x="50" y="146" width="26" height="13" rx="3.2" ${F('ao')}/><path d="M63 148.4 l1.5 3.3 3.3 .5 -2.4 2.3 .6 3.3 -3-1.6 -3 1.6 .6-3.3 -2.4-2.3 3.3-.5z" fill="#fff" fill-opacity=".92"/>
+<rect x="112" y="148" width="32" height="16" rx="4.2" fill="#C9D3EA"/><circle cx="121" cy="156" r="3.2" fill="#E5343C"/><circle cx="128.5" cy="156" r="3.2" fill="#3A7BE8"/><circle cx="136" cy="156" r="3.2" fill="#3FC47A"/>${gl(SHOULD, 4, .6)}` },
   { id: 'chef', name: 'Кухар', fit: { ks: .82, chin: 129 },
     back: `<defs>${lg('cf', '#FFFFFF', '#F6F4F2', '#D7D2CC')}${lg('cr', '#FF8A8A', '#E03A44', '#A11E2E')}${rg('ck', '#FF9AA2', '#B01E2E')}</defs>
 <path d="${BODY}" ${F('cf')}/>`,
-    front: `<path d="M74 110 L58 134 L92 146Z" fill="#fff"/><path d="M126 110 L142 134 L108 146Z" fill="#fff"/>${st('M58 134 L92 146 M142 134 L108 146', '#B8B1A6', .45, 2)}
-<path d="M66 122 Q100 150 134 122 L132 134 Q100 160 68 134Z" ${F('cr')}/>${mir(`<path d="M97 152 L82 176 L98 170Z" ${F('cr')}/>`)}<ellipse cx="100" cy="150" rx="8" ry="7" ${F('ck')}/>
-<path d="M100 164 L100 206" stroke="#C9C3BA" stroke-width="2.6"/>${[172, 188].map((y) => `<circle cx="84" cy="${y}" r="3.6" fill="#B8B1A6"/><circle cx="116" cy="${y}" r="3.6" fill="#B8B1A6"/>`).join('')}${gl(SHOULD, 4, .7)}` },
+    front: `${st('M78 124 L88 176 M122 124 L112 176', '#B8B1A6', .5, 2.2)}<path d="M100 132 L100 176" stroke="#C9C3BA" stroke-width="2.2"/>
+${mir(`<path d="M70 112 Q84 124 98 124 L98 134 Q82 134 68 122Z" fill="#fff"/><path d="M70 112 Q84 124 98 124" fill="none" stroke="#B8B1A6" stroke-opacity=".55" stroke-width="2"/>`)}
+<path d="M76 120 Q100 128 124 120 L100 150Z" ${F('cr')}/>${mir(`<path d="M97 128 L83 118 L84 134Z" ${F('cr')}/>`)}<ellipse cx="100" cy="126" rx="6.6" ry="6" ${F('ck')}/>
+${[142, 158].map((y) => `<circle cx="88" cy="${y}" r="3.4" fill="#B8B1A6"/><circle cx="112" cy="${y}" r="3.4" fill="#B8B1A6"/>`).join('')}${gl(SHOULD, 4, .7)}` },
   { id: 'tee', name: 'Футболка', fit: { ks: .84, chin: 132 },
     back: `<defs>${lg('te', '#7FE3E0', '#2FBFC0', '#1B8A92')}${lg('te2', '#46C7C9', '#1FA3A8', '#147079')}</defs>
 <path d="${BODY}" ${F('te')}/>`,
@@ -58,27 +62,26 @@ export const CLOTHES = [
     front: `<path d="M70 116 Q100 134 130 116" fill="none" stroke="url(#cl-gold)" stroke-width="7" stroke-linecap="round"/><circle cx="70" cy="118" r="7.4" fill="url(#cl-cb)"/><circle cx="130" cy="118" r="7.4" fill="url(#cl-cb)"/>${gl('M30 150 Q32 122 54 108', 4, .32)}
 <path d="M100 150 l6 12 13 2 -9.6 9 2.6 13 -12-6.6 -12 6.6 2.6-13 -9.6-9 13-2z" fill="#FFD34A" fill-opacity=".0"/>` },
   { id: 'scarf', name: 'Шарф', fit: { ks: .84, chin: 131 },
-    back: `<defs>${lg('sc', '#FF8A8A', '#E5343C', '#A11E2E')}${lg('ct', '#6B7488', '#464E64', '#2A3045')}${GOLD}</defs>
-<path d="${BODY}" ${F('ct')}/><path d="M100 150 L100 206" stroke="#1E2336" stroke-opacity=".5" stroke-width="2.6"/>${btn(92, 184, 'cl-gold', 3)}${btn(108, 184, 'cl-gold', 3)}
-`,
-    front: `<path d="M38 112 Q100 140 162 112 Q174 124 168 140 Q100 172 32 140 Q26 124 38 112Z" ${F('sc')}/>
-<path d="M44 122 Q100 150 156 122 M40 134 Q100 162 160 134" fill="none" stroke="#fff" stroke-opacity=".82" stroke-width="5" stroke-linecap="round"/>
-<path d="M118 146 L144 142 L148 166 Q134 174 120 170Z" ${F('sc')}/><path d="M120 156 L146 152 M121 165 L147 161" stroke="#fff" stroke-opacity=".82" stroke-width="4.6" stroke-linecap="round"/>${gl('M46 118 Q76 134 104 138', 4, .38)}` },
+    back: `<defs>${lg('sc', '#FF8A8A', '#E5343C', '#A11E2E')}${lg('ct', '#6B7488', '#464E64', '#2A3045')}${GOLD}<clipPath id="cl-scb"><path d="M42 126 C42 115 68 114 100 126 C132 114 158 115 158 126 C158 145 134 158 100 160 C66 158 42 145 42 126Z"/></clipPath></defs>
+<path d="${BODY}" ${F('ct')}/><path d="M100 160 L100 206" stroke="#1E2336" stroke-opacity=".5" stroke-width="2.6"/>${btn(92, 190, 'cl-gold', 3)}${btn(108, 190, 'cl-gold', 3)}`,
+    front: `<path d="M42 126 C42 115 68 114 100 126 C132 114 158 115 158 126 C158 145 134 158 100 160 C66 158 42 145 42 126Z" ${F('sc')}/>
+<g clip-path="url(#cl-scb)"><path d="M30 132 Q100 156 170 132 M30 144 Q100 168 170 144" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="6" stroke-linecap="round"/></g>
+<path d="M112 152 L136 150 L139 176 Q125 182 113 177Z" ${F('sc')}/><path d="M113.5 163 L138 161 M114 171 L138.5 169" stroke="#fff" stroke-opacity=".9" stroke-width="4.6" stroke-linecap="round"/><path d="M114 178 l0 5 M120 179 l0 5 M126 179 l0 5 M132 178 l0 5" stroke="#A11E2E" stroke-width="2.4" stroke-linecap="round"/>` },
   { id: 'tux', name: 'Смокінг', fit: { ks: .84, chin: 131 },
-    back: `<defs>${lg('tx', '#4A4A5C', '#2A2A38', '#14141E')}${lg('tw', '#FFFFFF', '#F4F6FC', '#CDD5EC')}${lg('bt', '#FF8A8A', '#E03A44', '#A11E2E')}${rg('bk', '#FF9AA2', '#B01E2E')}</defs>
-<path d="${BODY}" ${F('tx')}/><path d="M74 112 L100 176 L126 112Z" ${F('tw')}/>`,
-    front: `<path d="M74 110 L62 130 L90 136Z" ${F('tw')}/><path d="M126 110 L138 130 L110 136Z" ${F('tw')}/>
-<path d="M62 126 L96 192 L40 170 Q34 148 54 124Z" fill="#0C0C14" fill-opacity=".55"/><path d="M138 126 L104 192 L160 170 Q166 148 146 124Z" fill="#0C0C14" fill-opacity=".55"/>
-${mir(`<path d="M97 140 Q80 126 66 132 Q62 144 70 154 Q86 156 97 146Z" ${F('bt')}/>`)}<ellipse cx="100" cy="143" rx="8" ry="9.5" ${F('bk')}/>${gl('M70 132 Q78 129 88 133', 3, .5)}${btn(100, 170, 'cl-gold', 3)}${btn(100, 184, 'cl-gold', 3)}${gl(SHOULD, 4, .2)}` },
+    back: `<defs>${lg('tx', '#4A4A5C', '#2A2A38', '#14141E')}${lg('tl', '#5B5B70', '#34343F', '#1C1C26')}${lg('tw', '#FFFFFF', '#F4F6FC', '#CDD5EC')}${lg('bt', '#FF8A8A', '#E03A44', '#A11E2E')}${rg('bk', '#FF9AA2', '#B01E2E')}${GOLD}</defs>
+<path d="${BODY}" ${F('tx')}/><path d="M80 112 L100 176 L120 112Z" ${F('tw')}/>`,
+    front: `${mir(`<path d="M80 112 L56 132 L88 182 L99 176 L92 138Z" ${F('tl')}/><path d="M80 112 L56 132 L62 134 L84 120Z" fill="#fff" fill-opacity=".14"/>`)}
+${mir(`<path d="M88 114 L78 124 L95 130Z" ${F('tw')}/>`)}
+${mir(`<path d="M98 131 Q86 120 74 124 Q71 132 76 139 Q89 141 98 135Z" ${F('bt')}/>`)}<ellipse cx="100" cy="131" rx="6.4" ry="7.4" ${F('bk')}/>${gl('M76 126 Q83 124 90 127', 2.8, .5)}${btn(100, 154, 'cl-gold', 2.8)}${btn(100, 166, 'cl-gold', 2.8)}${gl(SHOULD, 4, .2)}` },
   { id: 'sport', name: 'Спортивна кофта', fit: { ks: .82, chin: 130 },
     back: `<defs>${lg('sp', '#FF9AB8', '#F0508A', '#B02464')}${lg('sw3', '#FFFFFF', '#F4F6FC', '#CDD5EC')}${lg('rb', '#7FB4FF', '#2F6FE0', '#1A3FA0')}${GOLD}${rg('md', '#FFF3B0', '#E39410')}</defs>
 <path d="${BODY}" ${F('sp')}/><path d="M24 156 Q100 132 176 156 L178 166 Q100 142 22 166Z" fill="#fff" fill-opacity=".85"/>`,
     front: `<path d="M60 120 Q100 150 140 120 L144 136 Q100 168 56 136Z" ${F('sw3')}/><path d="M100 152 L100 206" stroke="#B02464" stroke-width="3.2"/><rect x="96" y="150" width="8" height="12" rx="2.5" fill="#E7EAF4"/>
 <path d="M86 134 L100 154 L92 158 L78 140Z" ${F('rb')}/><path d="M114 134 L100 154 L108 158 L122 140Z" fill="#E5343C"/>
-<circle cx="100" cy="166" r="12" fill="url(#cl-md)"/><circle cx="100" cy="166" r="8.6" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/><path d="M100 159 l2.2 4.6 5 .7 -3.6 3.5 .8 5 -4.4 -2.4 -4.4 2.4 .8-5 -3.6-3.5 5-.7z" fill="#fff" fill-opacity=".92"/>${gl(SHOULD, 4, .3)}` },
+<g transform="translate(0 -8)"><circle cx="100" cy="166" r="12" fill="url(#cl-md)"/><circle cx="100" cy="166" r="8.6" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/><path d="M100 159 l2.2 4.6 5 .7 -3.6 3.5 .8 5 -4.4 -2.4 -4.4 2.4 .8-5 -3.6-3.5 5-.7z" fill="#fff" fill-opacity=".92"/></g>${gl(SHOULD, 4, .3)}` },
   { id: 'aloha', name: 'Гавайська сорочка', fit: { ks: .82, chin: 130 },
-    back: `<defs>${lg('al', '#6FE0B8', '#22B58A', '#14805E')}${rg('f1', '#FFB5D3', '#E8508C')}${rg('f2', '#FFF3B0', '#F2A81E')}${rg('f3', '#C9B6FF', '#7A5CE6')}${rg('fc', '#FFF8C2', '#F2A81E')}</defs>
-<path d="${BODY}" ${F('al')}/>${[[40, 160, 'f1'], [74, 178, 'f2'], [126, 170, 'f3'], [160, 156, 'f2'], [100, 196, 'f1'], [150, 192, 'f1'], [50, 192, 'f3']].map(([x, y, c]) => `<g>${[0, 72, 144, 216, 288].map((a) => `<ellipse cx="${x}" cy="${y - 5}" rx="3.4" ry="5" fill="url(#cl-${c})" transform="rotate(${a} ${x} ${y})"/>`).join('')}<circle cx="${x}" cy="${y}" r="2.4" fill="url(#cl-fc)"/></g>`).join('')}`,
-    front: `<path d="M72 110 L52 136 L86 148Z" fill="#17A47C"/><path d="M128 110 L148 136 L114 148Z" fill="#17A47C"/>${st('M52 136 L86 148 M148 136 L114 148', '#fff', .45, 2)}
-<path d="M44 124 Q100 168 156 124" fill="none" stroke="#3FA66A" stroke-width="4.5" stroke-linecap="round"/>${[[46, 128, 'f1'], [64, 144, 'f2'], [84, 154, 'f3'], [100, 157, 'f1'], [116, 154, 'f2'], [136, 144, 'f3'], [154, 128, 'f1']].map(([x, y, c]) => `<g>${[0, 72, 144, 216, 288].map((a) => `<ellipse cx="${x}" cy="${y - 6}" rx="4.2" ry="5.8" fill="url(#cl-${c})" transform="rotate(${a} ${x} ${y})"/>`).join('')}<circle cx="${x}" cy="${y}" r="3.2" fill="url(#cl-fc)"/></g>`).join('')}${gl(SHOULD, 4, .3)}` },
+    back: `<defs>${lg('al', '#6FE0B8', '#22B58A', '#14805E')}${lg('ac', '#B9F2DA', '#6FD6AE', '#2FA880')}${rg('f1', '#FFB5D3', '#E8508C')}${rg('f2', '#FFF3B0', '#F2A81E')}${rg('f3', '#C9B6FF', '#7A5CE6')}${rg('fc', '#FFF8C2', '#F2A81E')}<clipPath id="cl-alb"><path d="${BODY}"/></clipPath></defs>
+<path d="${BODY}" ${F('al')}/><g clip-path="url(#cl-alb)"><path d="M58 150 q-10 8 -22 6 q6 -10 22 -6z M142 150 q10 8 22 6 q-6 -10 -22 -6z M70 176 q-10 6 -20 3 q6 -9 20 -3z M130 176 q10 6 20 3 q-6 -9 -20 -3z" fill="#14805E" fill-opacity=".55"/>${[[44, 138, 'f1', 1], [156, 138, 'f2', 1], [60, 160, 'f3', 1.1], [140, 160, 'f1', 1.1], [84, 178, 'f2', 1], [116, 178, 'f3', 1]].map(([x, y, c, k]) => `<g>${[0, 72, 144, 216, 288].map((a) => `<ellipse cx="${x}" cy="${y - 5.2 * k}" rx="${3.6 * k}" ry="${5.2 * k}" fill="url(#cl-${c})" transform="rotate(${a} ${x} ${y})"/>`).join('')}<circle cx="${x}" cy="${y}" r="${2.6 * k}" fill="url(#cl-fc)"/></g>`).join('')}</g>`,
+    front: `${mir(`<path d="M80 111 Q66 124 60 134 Q78 152 94 160 L99 148 Q92 130 90 122Z" ${F('ac')}/><path d="M80 111 Q66 124 60 134" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/>`)}
+${gl(SHOULD, 4, .3)}` },
 ];
