@@ -29,3 +29,29 @@ test("розгорнута відповідь: до оцінки виклада�
   await expect(page.locator("#feedback")).toContainText("Правильно");
   expect(errors).toEqual([]);
 });
+
+test("розгорнута відповідь: багаторядкове поле росте, Enter — новий рядок, Ctrl+Enter — відправка; коротка відповідь і далі шлеться Enter", async ({ page, errors }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await seed(page, { rooms: { "12345678": room("question") } }, "");
+  await page.goto(URL);
+  const inp = page.locator("#text-inp");
+  expect(await inp.evaluate(e => e.tagName)).toBe("TEXTAREA");
+  const h0 = (await inp.boundingBox()).height;
+  await inp.fill("Перший рядок"); await inp.press("Enter"); await inp.pressSequentially("Другий рядок");
+  expect(await inp.inputValue()).toBe("Перший рядок\nДругий рядок");
+  await expect.poll(async () => (await readDb(page)).rooms["12345678"].answers?.[0]?.p1).toBeUndefined();
+  await inp.press("Control+Enter");
+  await expect.poll(async () => (await readDb(page)).rooms["12345678"].answers?.[0]?.p1?.value).toBe("Перший рядок\nДругий рядок");
+  expect(h0).toBeGreaterThan(100);
+  expect(errors.filter(e => !/answers|permission/.test(e))).toEqual([]);
+});
+
+test("коротка текстова відповідь: Enter відправляє, поле однорядкове", async ({ page, errors }) => {
+  await seed(page, { rooms: { "12345678": { ...room("question"), questions: [{ type: "text", text: "Столиця?" }] } } }, "");
+  await page.goto(URL);
+  const inp = page.locator("#text-inp");
+  expect((await inp.boundingBox()).height).toBeLessThan(100);
+  await inp.fill("Київ"); await inp.press("Enter");
+  await expect.poll(async () => (await readDb(page)).rooms["12345678"].answers?.[0]?.p1?.value).toBe("Київ");
+  expect(errors.filter(e => !/answers|permission/.test(e))).toEqual([]);
+});
